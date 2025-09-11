@@ -1,4 +1,4 @@
-from sqlalchemy import column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
@@ -9,14 +9,14 @@ Base = declarative_base()
 
 class Orden(Base):
     __tablename__ = 'Orden'
-    numero = column(Integer, primary_key=True, autoincrement=True)
-    estado = column(String, nullable=False, default='Pendiente')
-    numero_mesa = column(Integer, ForeignKey('Mesa.numero'), nullable=False)
-    id_empleado = column(Integer, ForeignKey('Empleado.id'), nullable=False)
-    fecha_registro = column(Date, nullable=False, default = datetime.now)
-    fecha_actualizacion = column(Date, default= datetime.now, onupdate=datetime.now)
-    id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
-    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
+    numero = Column(Integer, primary_key=True, autoincrement=True)
+    estado = Column(String, nullable=False, default='Pendiente')
+    numero_mesa = Column(Integer, ForeignKey('Mesa.numero'), nullable=False)
+    id_empleado = Column(Integer, ForeignKey('Empleado.id'), nullable=False)
+    fecha_registro = Column(Date, nullable=False, default = datetime.now)
+    fecha_actualizacion = Column(Date, default= datetime.now, onupdate=datetime.now)
+    id_usuario = Column(Integer, ForeignKey('Usuario.id'), nullable=False)
+    id_usuario_mod = Column(Integer, ForeignKey('Usuario.id'))
 
     Mesa = relationship("Mesa", back_populates= "Orden")
     Empleado= relationship("Empleado", back_populates= "Orden")

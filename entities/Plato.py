@@ -1,4 +1,4 @@
-from sqlalchemy import column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
@@ -10,15 +10,15 @@ Base = declarative_base()
 class Plato(Base):
     __tablename__ = 'Plato'
 
-    id = column(Integer, primary_key=True, autoincrement=True)
-    nombre = column(String(20), nullable=False)
-    precio_unidad = column(Integer, nullable=False)
-    descripcion = column(String(100), nullable=True)
-    id_categoria = column(Integer, ForeignKey('Categoria.id'), nullable=False)
-    fecha_registro = column(Date, nullable=False, default= datetime.now)
-    fecha_actualizacion = column(Date, default= datetime.now, onupdate=datetime.now)
-    id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
-    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(20), nullable=False)
+    precio_unidad = Column(Integer, nullable=False)
+    descripcion = Column(String(100), nullable=True)
+    id_categoria = Column(Integer, ForeignKey('Categoria.id'), nullable=False)
+    fecha_registro = Column(Date, nullable=False, default= datetime.now)
+    fecha_actualizacion = Column(Date, default= datetime.now, onupdate=datetime.now)
+    id_usuario = Column(Integer, ForeignKey('Usuario.id'), nullable=False)
+    id_usuario_mod = Column(Integer, ForeignKey('Usuario.id'))
 
     Categoria = relationship("Categoria", back_populates="platos")
     Plato_Orden = relationship("Plato_Orden", back_populates="Plato")

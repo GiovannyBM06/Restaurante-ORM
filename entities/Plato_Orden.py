@@ -1,4 +1,4 @@
-from sqlalchemy import column, Integer, Date, ForeignKey
+from sqlalchemy import Column, Integer, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
@@ -10,13 +10,13 @@ Base = declarative_base()
 class Plato_Orden(Base):
     __tablename__ = 'Plato_Orden'
 
-    numero_orden = column(Integer, ForeignKey('Orden.numero'), nullable=False)
-    id_plato = column(Integer, ForeignKey('Plato.id'), nullable=False)
-    cantidad = column(Integer, nullable=False)
-    fecha_registro = column(Date, nullable=False, default=datetime.now)
-    fecha_actualizacion = column(Date, default= datetime.now, onupdate=datetime.now)
-    id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
-    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
+    numero_orden = Column(Integer, ForeignKey('Orden.numero'),primary_key=True, nullable=False)
+    id_plato = Column(Integer, ForeignKey('Plato.id'),primary_key=True, nullable=False)
+    cantidad = Column(Integer, nullable=False)
+    fecha_registro = Column(Date, nullable=False, default=datetime.now)
+    fecha_actualizacion = Column(Date, default= datetime.now, onupdate=datetime.now)
+    id_usuario = Column(Integer, ForeignKey('Usuario.id'), nullable=False)
+    id_usuario_mod = Column(Integer, ForeignKey('Usuario.id'))
 
     Orden = relationship("Orden", back_populates="Plato_Orden")
     Plato = relationship("Plato", back_populates="Plato_Orden")

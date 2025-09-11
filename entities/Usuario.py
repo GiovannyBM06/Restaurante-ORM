@@ -1,4 +1,4 @@
-from sqlalchemy import column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
@@ -9,10 +9,11 @@ Base = declarative_base()
 
 class Usuario(Base):
     __tablename__= 'Usuario'
-    nombre = column(String(20), nullable=False)
-    apellido = column(String(20), nullable=False)
-    email = column(String(40), nullable=False, unique=True)
-    contraseña = column(String(20), nullable=False)
+    id = Column (int, primary_key=True)
+    nombre = Column(String(20), nullable=False)
+    apellido = Column(String(20), nullable=False)
+    email = Column(String(40), nullable=False, unique=True)
+    contraseña = Column(String(20), nullable=False)
 
     Plato = relationship("Plato", back_populates="Usuario")
     Categoria = relationship("Categoria", back_populates="Usuario")

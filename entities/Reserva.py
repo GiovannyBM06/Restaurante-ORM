@@ -1,4 +1,4 @@
-from sqlalchemy import column, Integer, String, Date, ForeignKey, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
@@ -8,15 +8,15 @@ from typing import Optional, List
 Base = declarative_base()
 class Reserva(Base):
     __tablename__ = 'Reserva'
-    CC_cliente = column(Integer, ForeignKey('Cliente.id'), nullable=False)
-    Numero_mesa = column(Integer, ForeignKey('Mesa.numero'), nullable=False)
-    cantidad_personas = column(Integer, nullable=False)
-    fecha_Hora = column(DateTime, nullable=False)
-    Estado = column(Boolean, nullable=False)
-    fecha_registro = column(Date, nullable=False, default=datetime.now)
-    fecha_actualizacion = column(Date, default= datetime.now, onupdate=datetime.now)
-    id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
-    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
+    CC_cliente = Column(Integer, ForeignKey('Cliente.id'),primary_key=True, nullable=False)
+    Numero_mesa = Column(Integer, ForeignKey('Mesa.numero'),primary_key=True, nullable=False)
+    cantidad_personas = Column(Integer, nullable=False)
+    fecha_Hora = Column(DateTime, nullable=False)
+    Estado = Column(Boolean, nullable=False)
+    fecha_registro = Column(Date, nullable=False, default=datetime.now)
+    fecha_actualizacion = Column(Date, default= datetime.now, onupdate=datetime.now)
+    id_usuario = Column(Integer, ForeignKey('Usuario.id'), nullable=False)
+    id_usuario_mod = Column(Integer, ForeignKey('Usuario.id'))
 
     Cliente = relationship("Cliente", back_populates="Reserva")
     Mesa = relationship("Mesa", back_populates="Reserva")
