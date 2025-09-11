@@ -35,3 +35,65 @@ class Factuta(Base):
             "id_usuario": self.id_usuario,
             "id_usuario_mod": self.id_usuario_mod
         }
+
+class FacturaBase(BaseModel):
+    total: float = Field(..., gt=0, description="Total de la factura")
+    metodo_pago: str = Field(..., max_length=20, description="Método de pago de la factura")
+    numero_orden: int = Field(..., gt=0, description="Número de la orden asociada a la factura")
+    id_usuario: int = Field(..., gt=0, description="ID del usuario que crea la factura")
+
+    @validator('metodo_pago')
+    def validar_metodo_pago(cls, v):
+        if not v.strip():
+            raise ValueError('El método de pago no puede estar vacío o solo contener espacios')
+        return v.strip()
+    
+    @validator('total')
+    def validar_total(cls, v):
+        if v <= 0:
+            raise ValueError('El total debe ser un número positivo')
+        return v
+    
+class FacturaCreate(FacturaBase):
+    pass
+
+class FacturaUpdate(BaseModel):
+    total: Optional[float] = Field(None, gt=0, description="Total de la factura")
+    metodo_pago: Optional[str] = Field(None, max_length=20, description="Método de pago de la factura")
+    id_usuario_mod: int = Field(..., gt=0, description="ID del usuario que modifica la factura")
+
+    @validator('metodo_pago')
+    def validar_metodo_pago(cls, v):
+        if v is not None and not v.strip():
+            raise ValueError('El método de pago no puede estar vacío o solo contener espacios')
+        return v.strip() if v is not None else v
+    
+    @validator('total')
+    def validar_total(cls, v):
+        if v is not None and v <= 0:
+            raise ValueError('El total debe ser un número positivo')
+        return v
+    
+class FacturaResponse(FacturaBase):
+    id: int
+    fecha_registro: datetime
+    fecha_actualizacion: Optional[datetime] = None
+    id_usuario_mod: Optional[int] = None
+
+    class Config:
+        from_attributes = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()   
+            }
+
+class FacturaConRelaciones(FacturaResponse):
+    usuario: Optional ['UsuarioResponse']
+    orden: Optional ['OrdenResponse']
+
+    class config:
+        from_attributes= True
+
+class FacturaListResponse (BaseModel):
+    Empleados: list [FacturaResponse]
+    total:int
+

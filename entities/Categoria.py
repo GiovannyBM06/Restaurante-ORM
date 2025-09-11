@@ -33,3 +33,64 @@ class Categoria(Base):
             "id_usuario": self.id_usuario,
             "id_usuario_mod": self.id_usuario_mod
         }
+    
+class CategoriaBase(BaseModel):
+    nombre: str = Field(..., max_length=20, description="Nombre de la categoría")
+    descripcion: Optional[str] = Field(None, max_length=100, description="Descripción de la categoría")
+    id_usuario: int = Field(..., gt=0, description="ID del usuario que crea la categoría")
+
+    @validator('nombre')
+    def validar_nombre(cls, v):
+        if not v.strip():
+            raise ValueError('El nombre no puede estar vacío o solo contener espacios')
+        return v.strip()
+    
+    @validator('descripcion')
+    def validar_descripcion(cls, v):
+        if v is not None:
+            return v.strip() if v is not None else None
+        return v
+
+class CategoriaCreate(CategoriaBase):
+    pass
+
+class CategoriaUpdate(BaseModel):
+    nombre: Optional[str] = Field(None, max_length=20, description="Nombre de la categoría")
+    descripcion: Optional[str] = Field(None, max_length=100, description="Descripción de la categoría")
+    id_usuario_mod: int = Field(..., gt=0, description="ID del usuario que modifica la categoría")
+
+    @validator('nombre')
+    def validar_nombre(cls, v):
+        if v is not None and not v.strip():
+            raise ValueError('El nombre no puede estar vacío o solo contener espacios')
+        return v.strip() if v is not None else v
+    
+    @validator('descripcion')
+    def validar_descripcion(cls, v):
+        if v is not None:
+            return v.strip() if v is not None else None
+        return v
+    
+class CategoriaResponse(CategoriaBase):
+    id: int
+    fecha_registro: datetime
+    fecha_actualizacion: Optional[datetime] = None
+    id_usuario_mod: Optional[int] = None
+
+    class Config:
+        from_attributes = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()   
+        }
+
+class CategoriaConRelaciones(CategoriaResponse):
+    Usuario: Optional['UsuarioResponse'] = None
+    class Config:
+        from_attributes = True
+
+class CategoriaListResponse(BaseModel):
+    categorias: List[CategoriaConRelaciones]
+    total: int
+
+    class Config:
+        from_attributes = True

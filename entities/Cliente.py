@@ -37,3 +37,88 @@ class Cliente(Base):
             "id_usuario": self.id_usuario,
             "id_usuario_mod": self.id_usuario_mod
         }
+    
+class ClienteModel(BaseModel):
+    cc: int = Field(..., gt=0)
+    nombre: str = Field(..., min_length=1, max_length=20)
+    apellido: str = Field(..., min_length=1, max_length=20)
+    Email: EmailStr
+    telefono: str = Field(..., min_length=7, max_length=15)
+    id_usuario: int = Field(..., gt=0)
+    id_usuario_mod: Optional[int] = Field(None, gt=0)
+    
+    @validator('cc')
+    def validar_cedula (cls,v):
+        if v is not None and not v.isdigit():
+            raise ValueError("La cedula debe contener solo numeros")
+        return v
+    @validator( 'nombre', 'apellido')
+    def validar_nombre_apellido(cls, v):
+        if not v.strip():
+            raise ValueError('El nombre y apellido no deben estar vacíos o solo contener espacios')
+        return v
+    @validator('Email')
+    def validate_email(cls, v):
+        if not v or '@' not in v:
+            raise ValueError('El email no es válido')
+        return v
+    @validator('telefono')
+    def validate_telefono(cls, v):
+        if not v.isdigit():
+            raise ValueError('El telefono debe contener solo numeros')
+        return v
+
+class ClienteCreate(ClienteModel):
+    pass
+
+class ClienteUpdate(BaseModel):
+    nombre: Optional[str] = Field(None, min_length=1, max_length=20)
+    apellido: Optional[str] = Field(None, min_length=1, max_length=20)
+    Email: Optional[EmailStr] = None
+    telefono: Optional[str] = Field(None, min_length=7, max_length=15)
+    id_usuario_mod: int = Field(..., gt=0)
+
+    @validator('cc')
+    def validar_cedula (cls,v):
+        if v is not None and not v.isdigit():
+            raise ValueError("La cedula debe contener solo numeros")
+        return v
+    @validator('nombre', 'apellido')
+    def validar_nombre_apellido(cls, v):
+        if v is not None and not v.strip():
+            raise ValueError('El nombre y apellido no deben estar vacíos o solo contener espacios')
+        return v
+    @validator('Email')
+    def validar_email(cls, v):
+        if v is not None and ('@' not in v):
+            raise ValueError('El email no es válido')
+        return v
+    @validator('telefono')
+    def validar_telefono(cls, v):
+        if v is not None and not v.isdigit():
+            raise ValueError('El telefono debe contener solo numeros')
+        return v
+
+class ClienteResponse(ClienteModel):
+    fecha_registro: datetime
+    fecha_actualizacion: Optional[datetime] = None
+    id_usuario_mod: Optional[int] = None
+
+    class Config:
+        from_attributes = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+            }
+        
+class ClienteConRelaciones(ClienteResponse):
+    Usuario: Optional['UsuarioResponse'] = None
+
+    class Config:
+        from_attributes = True
+
+class ClienteListResponse(BaseModel):
+    clientes: List[ClienteResponse]
+    total: int
+
+    class Config:
+        from_attributes = True
