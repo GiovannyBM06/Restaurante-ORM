@@ -17,12 +17,14 @@ class Cliente(Base):
     fecha_registro = column(Date, nullable=False, default=datetime.now)
     fecha_actualizacion = column(Date,default=datetime.now, onupdate=datetime.now)
     id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
+    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
 
     Reserva = relationship("Reserva", back_populates="Cliente")
+    Usuario = relationship("Usuario", back_populates="Cliente")
 
     def __repr__(self):
-        return f"Cliente(cc={self.cc}, nombre='{self.nombre}', apellido='{self.apellido}', Email='{self.Email}', telefono='{self.telefono}')"
-    
+        return f"Cliente(cc={self.cc}, nombre='{self.nombre}', apellido='{self.apellido}', Email='{self.Email}', telefono='{self.telefono}')" 
+       
     def to_dict(self):
         return {
             "cc": self.cc,
@@ -32,5 +34,6 @@ class Cliente(Base):
             "telefono": self.telefono,
             "fecha_registro": self.fecha_registro,
             "fecha_actualizacion": self.fecha_actualizacion if self.fecha_actualizacion else None,
-            "id_usuario": self.id_usuario
+            "id_usuario": self.id_usuario,
+            "id_usuario_mod": self.id_usuario_mod
         }

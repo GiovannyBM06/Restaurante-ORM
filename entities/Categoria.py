@@ -15,8 +15,10 @@ class Categoria(Base):
     fecha_registro = column(Date, nullable=False, default = datetime.now)
     fecha_actualizacion = column(Date,default= datetime.now, onupdate=datetime.now)
     id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
+    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
 
-    Plato = relationship("Plato", back_populates="Categoria")    
+    Plato = relationship("Plato", back_populates="Categoria")
+    Usuario = relationship("Usuario", back_populates= "Categoria")    
 
     def __repr__(self):
         return f"Categoria(id={self.id}, nombre='{self.nombre}', descripcion='{self.descripcion}')"
@@ -28,5 +30,6 @@ class Categoria(Base):
             "descripcion": self.descripcion,
             "fecha_registro": self.fecha_registro,
             "fecha_actualizacion": self.fecha_actualizacion if self.fecha_actualizacion else None,
-            "id_usuario": self.id_usuario
+            "id_usuario": self.id_usuario,
+            "id_usuario_mod": self.id_usuario_mod
         }

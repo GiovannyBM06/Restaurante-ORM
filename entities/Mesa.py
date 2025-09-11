@@ -11,12 +11,13 @@ class Mesa(Base):
     __tablename__ = 'Mesa'
     numero = column(Integer, primary_key=True, autoincrement=True)
     capacidad = column(Integer, nullable=False)
-    estado = column(String(15), nullable=False)
     fecha_registro = column(Date, nullable=False, default = datetime.now)  
     fecha_actualizacion = column(Date, default= datetime.now, onupdate=datetime.now)
     id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
+    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
 
     Reserva = relationship("Reserva", back_populates= "Mesa")
+    id_usuario = relationship("Usuario", back_populates="Mesa")
 
     def __repr__(self):
         return f"Mesa(numero={self.numero}, capacidad={self.capacidad}, estado='{self.estado}')"
@@ -25,8 +26,8 @@ class Mesa(Base):
         return {
             "numero": self.numero,
             "capacidad": self.capacidad,
-            "estado": self.estado,
             "fecha_registro": self.fecha_registro,
             "fecha_actualizacion": self.fecha_actualizacion if self.fecha_actualizacion else None,
-            "id_usuario": self.id_usuario
+            "id_usuario": self.id_usuario,
+            "id_usuario_mod": self.id_usuario_mod  
         }
