@@ -1,4 +1,4 @@
-from sqlalchemy import column, Integer, String, Date, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Text
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
@@ -9,13 +9,13 @@ Base = declarative_base()
 
 class Categoria(Base):
     __tablename__ = 'Categoria'
-    id = column(Integer, primary_key=True, autoincrement=True)
-    nombre = column(String(20), nullable=False)
-    descripcion = column(Text, nullable=True)
-    fecha_registro = column(Date, nullable=False, default = datetime.now)
-    fecha_actualizacion = column(Date,default= datetime.now, onupdate=datetime.now)
-    id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
-    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(20), nullable=False)
+    descripcion = Column(Text, nullable=True)
+    fecha_registro = Column(Date, nullable=False, default = datetime.now)
+    fecha_actualizacion = Column(Date,default= datetime.now, onupdate=datetime.now)
+    id_usuario = Column(Integer, ForeignKey('Usuario.id'), nullable=False)
+    id_usuario_mod = Column(Integer, ForeignKey('Usuario.id'))
 
     Plato = relationship("Plato", back_populates="Categoria")
     Usuario = relationship("Usuario", back_populates= "Categoria")    
@@ -35,21 +35,21 @@ class Categoria(Base):
         }
     
 class CategoriaBase(BaseModel):
-    nombre: str = Field(..., max_length=20, description="Nombre de la categoría")
+    nombre: str = Field(..., min_length=1, max_length=20, description="Nombre de la categoría")
     descripcion: Optional[str] = Field(None, max_length=100, description="Descripción de la categoría")
     id_usuario: int = Field(..., gt=0, description="ID del usuario que crea la categoría")
 
     @validator('nombre')
     def validar_nombre(cls, v):
-        if not v.strip():
-            raise ValueError('El nombre no puede estar vacío o solo contener espacios')
+        if not v or len(v.strip()) == 0:
+            raise ValueError('El nombre no puede estar vacío')
         return v.strip()
-    
+
     @validator('descripcion')
     def validar_descripcion(cls, v):
-        if v is not None:
-            return v.strip() if v is not None else None
-        return v
+        if v is not None and len(v) > 100:
+            raise ValueError('La descripción no puede superar los 100 caracteres')
+        return v.strip() if v is not None else None
 
 class CategoriaCreate(CategoriaBase):
     pass
@@ -82,14 +82,14 @@ class CategoriaResponse(CategoriaBase):
         json_encoders = {
             datetime: lambda v: v.isoformat()   
         }
-
+'''
 class CategoriaConRelaciones(CategoriaResponse):
     Usuario: Optional['UsuarioResponse'] = None
     class Config:
         from_attributes = True
-
+'''
 class CategoriaListResponse(BaseModel):
-    categorias: List[CategoriaConRelaciones]
+    categorias: List[CategoriaResponse]
     total: int
 
     class Config:

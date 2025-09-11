@@ -38,4 +38,59 @@ class Orden(Base):
             "id_usuario": self.id_usuario,
             "id_usuario_mod": self.id_usuario_mod
         }
-    
+
+class OrdenBase(BaseModel):
+    estado: str = Field(..., description="Estado de la orden")
+    numero_mesa: int = Field(..., gt=0, description="Número de la mesa")
+    id_empleado: int = Field(..., gt=0, description="ID del empleado")
+    id_usuario: int = Field(..., gt=0, description="ID del usuario que crea la orden")
+
+    @validator('estado')
+    def validar_estado(cls, v):
+        estados_validos = ['Pendiente', 'En Proceso', 'Completada', 'Cancelada']
+        if v not in estados_validos:
+            raise ValueError(f"El estado debe ser uno de: {', '.join(estados_validos)}")
+        return v
+
+    @validator('numero_mesa', 'id_empleado', 'id_usuario')
+    def validar_ids(cls, v):
+        if v is not None and v <= 0:
+            raise ValueError("El valor debe ser mayor que 0")
+        return v
+
+class OrdenCreate(OrdenBase):
+    pass
+
+class OrdenUpdate(OrdenBase):
+    id_usuario_mod: int = Field(..., gt=0, description="ID del usuario que modifica la orden")
+
+    @validator('id_usuario_mod')
+    def validar_id_usuario_mod(cls, v):
+        if v is not None and v <= 0:
+            raise ValueError("El id_usuario_mod debe ser mayor que 0")
+        return v
+
+class OrdenResponse(OrdenBase):
+    numero: int
+    fecha_registro: datetime
+    fecha_actualizacion: Optional[datetime] = None
+    id_usuario_mod: Optional[int] = None
+    class Config:
+        from_attributes = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
+'''
+class OrdenConRelaciones(OrdenResponse):
+    usuario: Optional ['UsuarioResponse']
+    mesa: Optional ['MesaResponse']
+    empleado: Optional ['EmpledoResponse']
+    class Config:
+        from_attributes = True
+'''
+class OrdenListResponse(BaseModel):
+    Ordenes: List[OrdenResponse]
+
+    class Config:
+        from_attributes = True
+        

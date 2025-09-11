@@ -1,4 +1,4 @@
-from sqlalchemy import column, Integer,Float, String, Date, ForeignKey, Boolean
+from sqlalchemy import Column, Integer,Float, String, Date, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
@@ -9,14 +9,14 @@ Base = declarative_base()
 
 class Factuta(Base):
     __tablename__ = 'Factura'
-    id = column(Integer, primary_key=True, autoincrement=True)
-    total = column(Float, nullable=False)
-    metodo_pago = column(String(20), nullable=False)
-    numero_orden = column(Integer, ForeignKey('Orden.numero'), nullable=False)
-    fecha_registro = column(Date, nullable=False, default = datetime.now)
-    fecha_actualizacion = column(Date, default= datetime.now, onupdate=datetime.now)
-    id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
-    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    total = Column(Float, nullable=False)
+    metodo_pago = Column(String(20), nullable=False)
+    numero_orden = Column(Integer, ForeignKey('Orden.numero'), nullable=False)
+    fecha_registro = Column(Date, nullable=False, default = datetime.now)
+    fecha_actualizacion = Column(Date, default= datetime.now, onupdate=datetime.now)
+    id_usuario = Column(Integer, ForeignKey('Usuario.id'), nullable=False)
+    id_usuario_mod = Column(Integer, ForeignKey('Usuario.id'))
 
     Orden = relationship("Orden", back_populates="Factura")
     Usuario= relationship("Usuario", back_populates="Factura")
@@ -38,14 +38,14 @@ class Factuta(Base):
 
 class FacturaBase(BaseModel):
     total: float = Field(..., gt=0, description="Total de la factura")
-    metodo_pago: str = Field(..., max_length=20, description="Método de pago de la factura")
+    metodo_pago: str = Field(..., min_length=1, max_length=20, description="Método de pago de la factura")
     numero_orden: int = Field(..., gt=0, description="Número de la orden asociada a la factura")
     id_usuario: int = Field(..., gt=0, description="ID del usuario que crea la factura")
 
     @validator('metodo_pago')
     def validar_metodo_pago(cls, v):
-        if not v.strip():
-            raise ValueError('El método de pago no puede estar vacío o solo contener espacios')
+        if not v or len(v.strip()) == 0:
+            raise ValueError('El método de pago no puede estar vacío')
         return v.strip()
     
     @validator('total')
@@ -85,14 +85,14 @@ class FacturaResponse(FacturaBase):
         json_encoders = {
             datetime: lambda v: v.isoformat()   
             }
-
+'''
 class FacturaConRelaciones(FacturaResponse):
     usuario: Optional ['UsuarioResponse']
     orden: Optional ['OrdenResponse']
 
     class config:
         from_attributes= True
-
+'''
 class FacturaListResponse (BaseModel):
     Empleados: list [FacturaResponse]
     total:int

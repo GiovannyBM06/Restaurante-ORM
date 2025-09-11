@@ -1,4 +1,4 @@
-from sqlalchemy import column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
@@ -9,15 +9,15 @@ Base = declarative_base()
 
 class Empleado(Base):
     __tablename__ = 'Empleado'
-    id = column(Integer, primary_key=True, autoincrement=True)
-    nombre = column(String(20), nullable=False)
-    apellido = column(String(20), nullable=False)
-    rol = column(String(20), nullable=False)
-    salario = column(Integer, nullable=False)
-    fecha_registro = column(Date, nullable=False, default = datetime.now)
-    fecha_actualizacion = column(Date, default= datetime.now, onupdate=datetime.now) 
-    id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
-    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(20), nullable=False)
+    apellido = Column(String(20), nullable=False)
+    rol = Column(String(20), nullable=False)
+    salario = Column(Integer, nullable=False)
+    fecha_registro = Column(Date, nullable=False, default = datetime.now)
+    fecha_actualizacion = Column(Date, default= datetime.now, onupdate=datetime.now) 
+    id_usuario = Column(Integer, ForeignKey('Usuario.id'), nullable=False)
+    id_usuario_mod = Column(Integer, ForeignKey('Usuario.id'))
 
     Orden = relationship("Orden", back_populates="Empleado")
     Usuario = relationship("Usuario", back_populates="Empleado")
@@ -39,16 +39,16 @@ class Empleado(Base):
         }
 
 class EmpleadoBase(BaseModel):
-    nombre: str = Field(..., max_length=20, description="Nombre del empleado")
-    apellido: str = Field(..., max_length=20, description="Apellido del empleado")
-    rol: str = Field(..., max_length=20, description="Rol del empleado")
+    nombre: str = Field(..., min_length=1, max_length=20, description="Nombre del empleado")
+    apellido: str = Field(..., min_length=1, max_length=20, description="Apellido del empleado")
+    rol: str = Field(..., min_length=1, max_length=20, description="Rol del empleado")
     salario: int = Field(..., gt=0, description="Salario del empleado")
     id_usuario: int = Field(..., gt=0, description="ID del usuario que crea el empleado")
 
     @validator('nombre', 'apellido', 'rol')
-    def validar_texto(cls, v):
-        if not v.strip():
-            raise ValueError('El campo no puede estar vacío o solo contener espacios')
+    def validar_texto(cls, v, field):
+        if not v or len(v.strip()) == 0:
+            raise ValueError(f"El campo {field.name} no puede estar vacío")
         return v.strip()
     
     @validator('salario')
@@ -89,13 +89,13 @@ class EmpleadoResponse(EmpleadoBase):
         json_encoders = {
             datetime: lambda v: v.isoformat()
             }
-
+'''
 class EmpleadoConRelaciones(EmpleadoResponse):
     Usuario: Optional['UsuarioResponse'] = None
 
     class Config:
         from_attributes = True
-       
+'''       
 class EmpleadoListResponse(BaseModel):
     Empleados: List[EmpleadoResponse]
 

@@ -33,3 +33,44 @@ class Usuario(Base):
             "apellido": self.apellido,
             "email": self.email
         }
+
+# Clases de validación Pydantic para Usuario
+class UsuarioBase(BaseModel):
+    nombre: str = Field(..., min_length=1, max_length=20, description="Nombre del usuario")
+    apellido: str = Field(..., min_length=1, max_length=20, description="Apellido del usuario")
+    email: EmailStr = Field(..., description="Email del usuario")
+    contraseña: str = Field(..., min_length=6, max_length=20, description="Contraseña del usuario")
+
+    @validator('nombre', 'apellido', 'contraseña')
+    def validar_campos(cls, v, field):
+        if not v or len(v.strip()) == 0:
+            raise ValueError(f"El campo {field.name} no puede estar vacío")
+        return v
+
+class UsuarioCreate(UsuarioBase):
+    pass
+
+class UsuarioUpdate(UsuarioBase):
+    pass
+
+class UsuarioResponse(UsuarioBase):
+    class Config:
+        from_attributes = True
+'''class UsuarioConRelaciones(UsuarioResponse):
+    Plato: Optional['PlatoResponse'] = None
+    Categoria: Optional['CategoriaResponse'] = None
+    Empleado: Optional['EmpleadoResponse'] = None
+    Cliente: Optional['ClienteResponse'] = None
+    Reserva: Optional['ReservaResponse'] = None
+    Factura: Optional['FacturaResponse'] = None
+    Orden: Optional['OrdenResponse'] = None
+    Mesa: Optional['MesaResponse'] = None
+    Plato_Orden: Optional['PlatoOrdenResponse'] = None
+    class Config:
+        from_attributes = True
+'''
+class UsuarioListResponse(BaseModel):
+    Usuarios: List[UsuarioResponse]
+
+    class Config:
+        from_attributes = True

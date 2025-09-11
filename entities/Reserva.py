@@ -36,3 +36,54 @@ class Reserva(Base):
             "id_usuario": self.id_usuario,
             "id_usuario_mod": self.id_usuario_mod
         }
+
+# Clases de validación Pydantic para Reserva
+class ReservaBase(BaseModel):
+    CC_cliente: int = Field(..., gt=0, description="ID del cliente")
+    Numero_mesa: int = Field(..., gt=0, description="Número de la mesa")
+    cantidad_personas: int = Field(..., gt=0, description="Cantidad de personas")
+    fecha_Hora: datetime = Field(..., description="Fecha y hora de la reserva")
+    Estado: bool = Field(..., description="Estado de la reserva")
+    id_usuario: int = Field(..., gt=0, description="ID del usuario que crea la reserva")
+
+    @validator('cantidad_personas', 'CC_cliente', 'Numero_mesa', 'id_usuario')
+    def validar_positivos(cls, v):
+        if v is not None and v <= 0:
+            raise ValueError("El valor debe ser mayor que 0")
+        return v
+
+class ReservaCreate(ReservaBase):
+    pass
+
+class ReservaUpdate(ReservaBase):
+    id_usuario_mod: int = Field(..., gt=0, description="ID del usuario que modifica la reserva")
+
+    @validator('id_usuario_mod')
+    def validar_id_usuario_mod(cls, v):
+        if v is not None and v <= 0:
+            raise ValueError("El id_usuario_mod debe ser mayor que 0")
+        return v
+
+class ReservaResponse(ReservaBase):
+    fecha_registro: datetime
+    fecha_actualizacion: Optional[datetime] = None
+    id_usuario_mod: Optional[int] = None
+    class Config:
+        from_attributes = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
+'''
+class ReservaConRelaciones(ReservaResponse):
+
+    Cliente: Optional['ClienteResponse'] = None
+    Mesa: Optional['MesaResponse'] = None
+    Usuario: Optional['UsuarioResponse'] = None
+    class Config:
+        from_attributes = True
+'''
+class ReservaListResponse(BaseModel):
+    Reservas: List[ReservaResponse]
+
+    class Config:
+        from_attributes = True

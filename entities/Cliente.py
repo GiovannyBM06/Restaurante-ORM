@@ -1,4 +1,4 @@
-from sqlalchemy import column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
@@ -9,15 +9,15 @@ Base = declarative_base()
 
 class Cliente(Base):
     __tablename__ = 'Cliente'
-    cc = column(Integer, primary_key=True)
-    nombre = column(String(20), nullable=False)
-    apellido = column(String(20), nullable=False)
-    Email = column(String(50), nullable=False, unique=True)
-    telefono = column(String(15), nullable=False)
-    fecha_registro = column(Date, nullable=False, default=datetime.now)
-    fecha_actualizacion = column(Date,default=datetime.now, onupdate=datetime.now)
-    id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
-    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
+    cc = Column(Integer, primary_key=True)
+    nombre = Column(String(20), nullable=False)
+    apellido = Column(String(20), nullable=False)
+    Email = Column(String(50), nullable=False, unique=True)
+    telefono = Column(String(15), nullable=False)
+    fecha_registro = Column(Date, nullable=False, default=datetime.now)
+    fecha_actualizacion = Column(Date,default=datetime.now, onupdate=datetime.now)
+    id_usuario = Column(Integer, ForeignKey('Usuario.id'), nullable=False)
+    id_usuario_mod = Column(Integer, ForeignKey('Usuario.id'))
 
     Reserva = relationship("Reserva", back_populates="Cliente")
     Usuario = relationship("Usuario", back_populates="Cliente")
@@ -39,15 +39,19 @@ class Cliente(Base):
         }
     
 class ClienteModel(BaseModel):
-    cc: int = Field(..., gt=0)
-    nombre: str = Field(..., min_length=1, max_length=20)
-    apellido: str = Field(..., min_length=1, max_length=20)
-    Email: EmailStr
-    telefono: str = Field(..., min_length=7, max_length=15)
-    id_usuario: int = Field(..., gt=0)
-    id_usuario_mod: Optional[int] = Field(None, gt=0)
-    
-    @validator('cc')
+    cc: int = Field(..., gt=0, description="Cédula del cliente")
+    nombre: str = Field(..., min_length=1, max_length=20, description="Nombre del cliente")
+    apellido: str = Field(..., min_length=1, max_length=20, description="Apellido del cliente")
+    Email: EmailStr = Field(..., description="Email del cliente")
+    telefono: str = Field(..., min_length=7, max_length=15, description="Teléfono del cliente")
+    id_usuario: int = Field(..., gt=0, description="ID del usuario que crea el cliente")
+    id_usuario_mod: Optional[int] = Field(None, gt=0, description="ID del usuario que modifica el cliente")
+
+    @validator('nombre', 'apellido', 'telefono')
+    def validar_textos(cls, v, field):
+        if not v or len(v.strip()) == 0:
+            raise ValueError(f"El campo {field.name} no puede estar vacío")
+        return v
     def validar_cedula (cls,v):
         if v is not None and not v.isdigit():
             raise ValueError("La cedula debe contener solo numeros")
@@ -100,6 +104,7 @@ class ClienteUpdate(BaseModel):
         return v
 
 class ClienteResponse(ClienteModel):
+    cc:int
     fecha_registro: datetime
     fecha_actualizacion: Optional[datetime] = None
     id_usuario_mod: Optional[int] = None
@@ -109,13 +114,13 @@ class ClienteResponse(ClienteModel):
         json_encoders = {
             datetime: lambda v: v.isoformat()
             }
-        
+'''      
 class ClienteConRelaciones(ClienteResponse):
     Usuario: Optional['UsuarioResponse'] = None
 
     class Config:
         from_attributes = True
-
+'''
 class ClienteListResponse(BaseModel):
     clientes: List[ClienteResponse]
     total: int
