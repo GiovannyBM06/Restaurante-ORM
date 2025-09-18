@@ -1,23 +1,25 @@
-from sqlalchemy import column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional, List
-
-Base = declarative_base()
+from database.config import Base
 
 class Mesa(Base):
-    __tablename__ = 'Mesa'
-    numero = column(Integer, primary_key=True, autoincrement=True)
-    capacidad = column(Integer, nullable=False)
-    fecha_registro = column(Date, nullable=False, default = datetime.now)  
-    fecha_actualizacion = column(Date, default= datetime.now, onupdate=datetime.now)
-    id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
-    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
+    __tablename__ = 'mesa'
+    numero = Column(Integer, primary_key=True, autoincrement=True)
+    capacidad = Column(Integer, nullable=False)
+    fecha_registro = Column(Date, nullable=False, default = datetime.now)  
+    fecha_actualizacion = Column(Date, default= datetime.now, onupdate=datetime.now)
+    id_usuario = Column(Integer, ForeignKey('usuario.id'), nullable=False)
+    id_usuario_mod = Column(Integer, ForeignKey('usuario.id'))
 
-    Reserva = relationship("Reserva", back_populates= "Mesa")
-    id_usuario = relationship("Usuario", back_populates="Mesa")
+    reservas = relationship("Reserva", back_populates="mesa")
+    ordenes = relationship("Orden", back_populates="mesa")
+
+    usuario = relationship("Usuario", back_populates="mesas", foreign_keys=[id_usuario])
+    usuario_mod = relationship("Usuario", foreign_keys=[id_usuario_mod], overlaps="usuario,mesas")
 
     def __repr__(self):
         return f"Mesa(numero={self.numero}, capacidad={self.capacidad}, estado='{self.estado}')"

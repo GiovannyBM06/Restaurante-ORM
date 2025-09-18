@@ -1,28 +1,29 @@
-from sqlalchemy import column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional, List
-
-Base = declarative_base()
+from database.config import Base
 
 class Orden(Base):
-    __tablename__ = 'Orden'
-    numero = column(Integer, primary_key=True, autoincrement=True)
-    estado = column(String, nullable=False, default='Pendiente')
-    numero_mesa = column(Integer, ForeignKey('Mesa.numero'), nullable=False)
-    id_empleado = column(Integer, ForeignKey('Empleado.id'), nullable=False)
-    fecha_registro = column(Date, nullable=False, default = datetime.now)
-    fecha_actualizacion = column(Date, default= datetime.now, onupdate=datetime.now)
-    id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
-    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
+    __tablename__ = 'orden'
+    numero = Column(Integer, primary_key=True, autoincrement=True)
+    estado = Column(String, nullable=False, default='Pendiente')
+    numero_mesa = Column(Integer, ForeignKey('mesa.numero'), nullable=False)
+    id_empleado = Column(Integer, ForeignKey('empleado.id'), nullable=False)
+    fecha_registro = Column(Date, nullable=False, default = datetime.now)
+    fecha_actualizacion = Column(Date, default= datetime.now, onupdate=datetime.now)
+    id_usuario = Column(Integer, ForeignKey('usuario.id'), nullable=False)
+    id_usuario_mod = Column(Integer, ForeignKey('usuario.id'))
 
-    Mesa = relationship("Mesa", back_populates= "Orden")
-    Empleado= relationship("Empleado", back_populates= "Orden")
-    Factura = relationship("Factura", back_populates= "Orden")
-    Plato_Orden = relationship("Plato_Orden", back_populates= "Orden")
-    Usuario = relationship("Usuario", back_populates="Orden")
+    mesa = relationship("Mesa", back_populates="ordenes")
+    empleado = relationship("Empleado", back_populates="ordenes")
+    facturas = relationship("Factura", back_populates="orden")
+    platos_orden = relationship("Plato_Orden", back_populates="orden")
+
+    usuario = relationship("Usuario", back_populates="ordenes", foreign_keys=[id_usuario])
+    usuario_mod = relationship("Usuario", foreign_keys=[id_usuario_mod], overlaps="usuario,ordenes")
 
     def __repr__(self):
         return f"Orden(numero={self.numero}, estado='{self.estado}')"

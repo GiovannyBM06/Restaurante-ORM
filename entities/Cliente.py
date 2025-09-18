@@ -1,27 +1,28 @@
-from sqlalchemy import column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional, List
-
-Base = declarative_base()
+from database.config import Base
 
 class Cliente(Base):
-    __tablename__ = 'Cliente'
-    cc = column(Integer, primary_key=True)
-    nombre = column(String(20), nullable=False)
-    apellido = column(String(20), nullable=False)
-    Email = column(String(50), nullable=False, unique=True)
-    telefono = column(String(15), nullable=False)
-    fecha_registro = column(Date, nullable=False, default=datetime.now)
-    fecha_actualizacion = column(Date,default=datetime.now, onupdate=datetime.now)
-    id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
-    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
+    __tablename__ = 'cliente'
+    cc = Column(Integer, primary_key=True)
+    nombre = Column(String(20), nullable=False)
+    apellido = Column(String(20), nullable=False)
+    Email = Column(String(50), nullable=False, unique=True)
+    telefono = Column(String(15), nullable=False)
+    fecha_registro = Column(Date, nullable=False, default=datetime.now)
+    fecha_actualizacion = Column(Date,default=datetime.now, onupdate=datetime.now)
+    id_usuario = Column(Integer, ForeignKey('usuario.id'), nullable=False)
+    id_usuario_mod = Column(Integer, ForeignKey('usuario.id'))
 
-    Reserva = relationship("Reserva", back_populates="Cliente")
-    Usuario = relationship("Usuario", back_populates="Cliente")
+    reservas = relationship("Reserva", back_populates="cliente")
 
+    usuario = relationship("Usuario", back_populates="clientes", foreign_keys=[id_usuario])
+    usuario_mod = relationship("Usuario", foreign_keys=[id_usuario_mod], overlaps="usuario,clientes")
+    
     def __repr__(self):
         return f"Cliente(cc={self.cc}, nombre='{self.nombre}', apellido='{self.apellido}', Email='{self.Email}', telefono='{self.telefono}')" 
        

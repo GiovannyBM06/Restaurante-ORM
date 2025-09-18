@@ -1,26 +1,28 @@
-from sqlalchemy import column, Integer, Date, ForeignKey
+from sqlalchemy import Column, Integer, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional, List
-
-Base = declarative_base()
+from database.config import Base
 
 class Plato_Orden(Base):
-    __tablename__ = 'Plato_Orden'
+    __tablename__ = 'plato_orden'
 
-    numero_orden = column(Integer, ForeignKey('Orden.numero'), nullable=False)
-    id_plato = column(Integer, ForeignKey('Plato.id'), nullable=False)
-    cantidad = column(Integer, nullable=False)
-    fecha_registro = column(Date, nullable=False, default=datetime.now)
-    fecha_actualizacion = column(Date, default= datetime.now, onupdate=datetime.now)
-    id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
-    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
+    numero_orden = Column(Integer, ForeignKey('orden.numero'), primary_key=True, nullable=False)
+    id_plato = Column(Integer, ForeignKey('plato.id'), primary_key=True, nullable=False)
+    cantidad = Column(Integer, nullable=False)
+    fecha_registro = Column(Date, nullable=False, default=datetime.now)
+    fecha_actualizacion = Column(Date, default= datetime.now, onupdate=datetime.now)
+    id_usuario = Column(Integer, ForeignKey('usuario.id'), nullable=False)
+    id_usuario_mod = Column(Integer, ForeignKey('usuario.id'))
 
-    Orden = relationship("Orden", back_populates="Plato_Orden")
-    Plato = relationship("Plato", back_populates="Plato_Orden")
-    Usuario = relationship("Usuario", back_populates="Plato_Orden")
+    orden = relationship("Orden", back_populates="platos_orden")
+    plato = relationship("Plato", back_populates="platos_orden")
+
+    usuario = relationship("Usuario", back_populates="platos_orden", foreign_keys=[id_usuario])
+    usuario_mod = relationship("Usuario", foreign_keys=[id_usuario_mod], overlaps="usuario,platos_orden")
+
 
     def __repr__(self):
         return f"Plato_Orden(num_orden={self.numero_orden}, id_plato={self.id_plato}, cantidad={self.cantidad})"

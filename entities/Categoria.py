@@ -1,24 +1,26 @@
-from sqlalchemy import column, Integer, String, Date, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Text
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional, List
-
-Base = declarative_base()
+from database.config import Base
 
 class Categoria(Base):
-    __tablename__ = 'Categoria'
-    id = column(Integer, primary_key=True, autoincrement=True)
-    nombre = column(String(20), nullable=False)
-    descripcion = column(Text, nullable=True)
-    fecha_registro = column(Date, nullable=False, default = datetime.now)
-    fecha_actualizacion = column(Date,default= datetime.now, onupdate=datetime.now)
-    id_usuario = column(Integer, ForeignKey('Usuario.id'), nullable=False)
-    id_usuario_mod = column(Integer, ForeignKey('Usuario.id'))
+    __tablename__ = 'categoria'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(20), nullable=False)
+    descripcion = Column(Text, nullable=True)
+    fecha_registro = Column(Date, nullable=False, default = datetime.now)
+    fecha_actualizacion = Column(Date,default= datetime.now, onupdate=datetime.now)
+    id_usuario = Column(Integer, ForeignKey('usuario.id'), nullable=False)
+    id_usuario_mod = Column(Integer, ForeignKey('usuario.id'))
 
-    Plato = relationship("Plato", back_populates="Categoria")
-    Usuario = relationship("Usuario", back_populates= "Categoria")    
+    platos = relationship("Plato", back_populates="categoria")
+
+    usuario = relationship("Usuario", back_populates="categorias", foreign_keys=[id_usuario])
+    usuario_mod = relationship("Usuario", foreign_keys=[id_usuario_mod], overlaps="usuario,categorias")
+
 
     def __repr__(self):
         return f"Categoria(id={self.id}, nombre='{self.nombre}', descripcion='{self.descripcion}')"
