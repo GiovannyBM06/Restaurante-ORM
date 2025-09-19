@@ -22,7 +22,7 @@ class Mesa(Base):
     usuario_mod = relationship("Usuario", foreign_keys=[id_usuario_mod], overlaps="usuario,mesas")
 
     def __repr__(self):
-        return f"Mesa(numero={self.numero}, capacidad={self.capacidad}, estado='{self.estado}')"
+        return f"Mesa(numero={self.numero}, capacidad={self.capacidad})"
     
     def to_dict(self):  
         return {
