@@ -31,16 +31,31 @@ class UsuarioCRUD:
     def crear_usuario(
         self,
         nombre: str,
-        apellido:str,
-        email:str,
-        contraseña:str,
-        es_admin: bool= False,
-    )-> Usuario:
-        
-        if not nombre or len(nombre.strip())==0:
-            raise ValueError("El usuario debe tener nombre")
-        if len(nombre)> 20:
-            raise ValueError("El nombre nop puede tener más de 10 caracteres")
+        apellido: str,
+        email: str,
+        contraseña: str,
+        es_admin: bool = False,
+    ) -> Usuario:
+        if not self._validar_nombre(nombre):
+            raise ValueError("Nombre inválido")
+        if not self._validar_apellido(apellido):
+            raise ValueError("Apellido inválido")
+        if not self._validar_email(email):
+            raise ValueError("Email inválido")
+        if not self._validar_contraseña(contraseña):
+            raise ValueError("Contraseña inválida")
+        if self.obtener_usuario_con_email(email):
+            raise ValueError("El email ya está registrado")
+        usuario = Usuario(
+            nombre=nombre.strip(),
+            apellido=apellido.strip(),
+            email=email.lower().strip(),
+            contraseña=contraseña,
+        )
+        self.db.add(usuario)
+        self.db.commit()
+        self.db.refresh(usuario)
+        return usuario
     
 
     def obtener_usuario(self, usuario_id: UUID)-> Optional[Usuario]:
