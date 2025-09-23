@@ -109,8 +109,7 @@ class SistemaPrincipal:
         print("7. Gestión de Orden")
         print("8. Gestion de Platos")
         print("9. Gestion de Reservas")
-        print("10. Configuracion del Sistema")
-        print("11. Mi Perfil")
+        print("10. Mi Perfil")
         print("0. Cerrar Sesion")
         print("=" * 50)
 
@@ -569,9 +568,14 @@ class SistemaPrincipal:
             email = input("Email: ").strip()
             telefono = input("Teléfono: ").strip()
 
+            usuarios = self.usuario_crud.obtener_usuarios()
+            if not usuarios:
+                print("ERROR: No hay usuarios registrados.")
+                return
             if not self.usuario_actual:
                 print("ERROR: No hay usuario autenticado.")
                 return
+            id_usuario = self.usuario_actual.id
 
             cliente = self.cliente_crud.crear_cliente(
                 nombre=nombre,
@@ -729,15 +733,12 @@ class SistemaPrincipal:
             print("\n--- CREAR EMPLEADO ---")
             usuarios = self.usuario_crud.obtener_usuarios()
             if not usuarios:
-                print(
-                    "ERROR: No hay usuarios registrados. Debe crear un usuario primero."
-                )
+                print("ERROR: No hay usuarios registrados.")
                 return
-            print("\nUsuarios disponibles:")
-            for i, u in enumerate(usuarios, 1):
-                print(f"{i}. {u.id} - {u.nombre} {u.apellido} ({u.email})")
-            id_usuario = input("Ingrese el ID del usuario asociado: ").strip()
-
+            if not self.usuario_actual:
+                print("ERROR: No hay usuario autenticado.")
+                return
+            id_usuario = self.usuario_actual.id
             nombre = input("Nombre: ").strip()
             apellido = input("Apellido: ").strip()
             rol = input("Rol: ").strip()
@@ -870,20 +871,22 @@ class SistemaPrincipal:
     def crear_mesa(self):
         try:
             print("\n--- CREAR MESA ---")
-            numero = input("Número de mesa: ").strip()
             capacidad = int(input("Capacidad: ").strip())
 
-            if not self.usuario_crud.obtener_usuarios():
+            usuarios = self.usuario_crud.obtener_usuarios()
+            if not usuarios:
                 print("ERROR: No hay usuarios registrados.")
                 return
-
-            id_usuario = input("ID del usuario responsable: ").strip()
+            if not self.usuario_actual:
+                print("ERROR: No hay usuario autenticado.")
+                return
+            id_usuario = self.usuario_actual.id
 
             mesa = self.mesa_crud.crear_mesa(
-                numero=numero, capacidad=capacidad, id_usuario=id_usuario
+                 capacidad=capacidad, id_usuario=id_usuario
             )
             print(
-                f"ÉXITO: Mesa creada -> Número {mesa.numero}, Capacidad {mesa.capacidad}"
+                f"ÉXITO: Mesa creada -> Capacidad {mesa.capacidad}"
             )
 
         except ValueError as e:
@@ -901,7 +904,7 @@ class SistemaPrincipal:
             print(f"\n--- MESAS ({len(mesas)}) ---")
             for i, mesa in enumerate(mesas, 1):
                 print(
-                    f"{i}. ID: {mesa.id} | Número: {mesa.numero} | Capacidad: {mesa.capacidad}"
+                    f"{i}. ID: {mesa.id} | Capacidad: {mesa.capacidad}"
                 )
 
         except Exception as e:
@@ -913,7 +916,7 @@ class SistemaPrincipal:
             mesa = self.mesa_crud.obtener_mesa(mesa_id)
             if mesa:
                 print(
-                    f"Mesa encontrada -> ID: {mesa.id}, Número: {mesa.numero}, Capacidad: {mesa.capacidad}"
+                    f"Mesa encontrada -> ID: {mesa.id}, Capacidad: {mesa.capacidad}"
                 )
             else:
                 print("ERROR: Mesa no encontrada.")
@@ -927,23 +930,17 @@ class SistemaPrincipal:
             if not mesa:
                 print("ERROR: Mesa no encontrada.")
                 return
-
-            print(f"\nActualizando mesa Número {mesa.numero}")
-            nuevo_numero = input(f"Nuevo número (actual: {mesa.numero}): ").strip()
             nueva_capacidad = input(
                 f"Nueva capacidad (actual: {mesa.capacidad}): "
             ).strip()
-
             cambios = {}
-            if nuevo_numero:
-                cambios["numero"] = nuevo_numero
             if nueva_capacidad:
                 cambios["capacidad"] = int(nueva_capacidad)
 
             if cambios:
                 mesa_actualizada = self.mesa_crud.actualizar_mesa(mesa_id, **cambios)
                 print(
-                    f"ÉXITO: Mesa actualizada -> Número {mesa_actualizada.numero}, Capacidad {mesa_actualizada.capacidad}"
+                    f"ÉXITO: Mesa actualizada -> Capacidad {mesa_actualizada.capacidad}"
                 )
             else:
                 print("INFO: No se realizaron cambios.")
@@ -1016,12 +1013,10 @@ class SistemaPrincipal:
             if not usuarios:
                 print("ERROR: No hay usuarios registrados.")
                 return
-            print("\n--- USUARIOS DISPONIBLES ---")
-            for i, usuario in enumerate(usuarios, 1):
-                print(f"{i}. ID: {usuario.id} | {usuario.nombre} {usuario.apellido}")
-            id_usuario = input(
-                "Ingrese el ID del usuario que genera la factura: "
-            ).strip()
+            if not self.usuario_actual:
+                print("ERROR: No hay usuario autenticado.")
+                return
+            id_usuario = self.usuario_actual.id
 
             total = float(input("Total de la factura: ").strip())
 
@@ -1170,11 +1165,10 @@ class SistemaPrincipal:
             if not usuarios:
                 print("ERROR: No hay usuarios registrados.")
                 return
-            print("\n--- USUARIOS DISPONIBLES ---")
-            for i, usuario in enumerate(usuarios, 1):
-                print(f"{i}. ID: {usuario.id} | {usuario.nombre} {usuario.apellido}")
-            id_usuario = input("Ingrese el ID del usuario que crea la orden: ").strip()
-
+            if not self.usuario_actual:
+                print("ERROR: No hay usuario autenticado.")
+                return
+            id_usuario = self.usuario_actual.id
             estado = input(
                 "Estado (Pendiente/En Proceso/Completada/Cancelada): "
             ).strip()
@@ -1357,10 +1351,6 @@ class SistemaPrincipal:
             if not usuarios:
                 print("ERROR: No hay usuarios registrados.")
                 return
-            print("\n--- USUARIOS DISPONIBLES ---")
-            for i, u in enumerate(usuarios, 1):
-                print(f"{i}. ID: {u.id} | {u.nombre} {u.apellido}")
-            """Usar usuario autenticado como creador si está disponible"""
             if not self.usuario_actual:
                 print("ERROR: No hay usuario autenticado.")
                 return
@@ -1720,6 +1710,10 @@ class SistemaPrincipal:
             )
             Estado = estado_input in ("1", "true", "t", "si", "s", "yes")
 
+            usuarios = self.usuario_crud.obtener_usuarios()
+            if not usuarios:
+                print("ERROR: No hay usuarios registrados.")
+                return
             if not self.usuario_actual:
                 print("ERROR: No hay usuario autenticado.")
                 return
@@ -1867,6 +1861,22 @@ class SistemaPrincipal:
                     self.mostrar_menu_usuarios()
                 elif opcion == "2":
                     self.mostrar_menu_categorias()
+                elif opcion == "3":
+                    self.mostrar_menu_clientes()
+                elif opcion =="4":
+                    self.mostrar_menu_empleados()
+                elif opcion=="5":
+                    self.mostrar_menu_facturas()
+                elif opcion =="6":
+                    self.mostrar_menu_mesas()
+                elif opcion =="7":
+                    self.mostrar_menu_ordenes()
+                elif opcion == "8":
+                    self.mostrar_menu_platos()
+                elif opcion == "9":
+                    self.mostrar_menu_reservas()
+                elif opcion =="10":
+                    self.mostrar_menu_perfil()
                 elif opcion == "0":
                     print("Cerrando sesion. Hasta luego!")
                     break
