@@ -9,6 +9,10 @@ from database.config import Base
 
 
 class Mesa(Base):
+    """
+    Modelo de la entidad Mesa para la base de datos.
+    """
+
     __tablename__ = "mesa"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     capacidad = Column(Integer, nullable=False)

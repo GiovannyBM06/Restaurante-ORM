@@ -4,46 +4,66 @@ from typing import Optional, List
 from uuid import UUID
 import re
 
+
 class OrdenCRUD:
-	def __init__(self, db: Session):
-		self.db = db
+    """
+    Operaciones CRUD para la entidad Orden.
+    """
 
-	def _validar_estado(self, estado: str) -> bool:
-		return estado in ["Pendiente", "En Proceso", "Completada", "Cancelada"]
+    def __init__(self, db: Session):
+        """Inicializa con una sesión de base de datos."""
+        self.db = db
 
-	def crear_orden(self, estado: str, id_mesa: UUID, id_empleado: UUID, id_usuario: UUID) -> Orden:
-		if not self._validar_estado(estado):
-			raise ValueError("Estado inválido")
-		orden = Orden(estado=estado, id_mesa=id_mesa, id_empleado=id_empleado, id_usuario=id_usuario)
-		self.db.add(orden)
-		self.db.commit()
-		self.db.refresh(orden)
-		return orden
+    def _validar_estado(self, estado: str) -> bool:
+        """Valida el estado de la orden (debe ser uno de los permitidos)."""
+        return estado in ["Pendiente", "En Proceso", "Completada", "Cancelada"]
 
-	def obtener_orden(self, orden_id: UUID) -> Optional[Orden]:
-		return self.db.query(Orden).filter(Orden.id == orden_id).first()
+    def crear_orden(
+        self, estado: str, id_mesa: UUID, id_empleado: UUID, id_usuario: UUID
+    ) -> Orden:
+        """Crea una nueva orden después de validar sus campos."""
+        if not self._validar_estado(estado):
+            raise ValueError("Estado inválido")
+        orden = Orden(
+            estado=estado,
+            id_mesa=id_mesa,
+            id_empleado=id_empleado,
+            id_usuario=id_usuario,
+        )
+        self.db.add(orden)
+        self.db.commit()
+        self.db.refresh(orden)
+        return orden
 
-	def obtener_ordenes(self, skip: int = 0) -> List[Orden]:
-		return self.db.query(Orden).offset(skip).all()
+    def obtener_orden(self, orden_id: UUID) -> Optional[Orden]:
+        """Obtiene una orden por su UUID."""
+        return self.db.query(Orden).filter(Orden.id == orden_id).first()
 
-	def actualizar_orden(self, orden_id: UUID, **kwargs) -> Optional[Orden]:
-		orden = self.obtener_orden(orden_id)
-		if not orden:
-			return None
-		if "estado" in kwargs and not self._validar_estado(kwargs["estado"]):
-			raise ValueError("Estado inválido")
-		for key, value in kwargs.items():
-			if hasattr(orden, key):
-				setattr(orden, key, value)
-		self.db.commit()
-		self.db.refresh(orden)
-		return orden
-"""
-	def eliminar_orden(self, orden_id: UUID) -> bool:
-		orden = self.obtener_orden(orden_id)
-		if not orden:
-			return False
-		self.db.delete(orden)
-		self.db.commit()
-		return True
-"""
+    def obtener_ordenes(self, skip: int = 0) -> List[Orden]:
+        """Obtiene una lista de órdenes, con salto opcional para paginación."""
+        return self.db.query(Orden).offset(skip).all()
+
+    def actualizar_orden(self, orden_id: UUID, **kwargs) -> Optional[Orden]:
+        """Actualiza los campos de una orden después de validar."""
+        orden = self.obtener_orden(orden_id)
+        if not orden:
+            return None
+        if "estado" in kwargs and not self._validar_estado(kwargs["estado"]):
+            raise ValueError("Estado inválido")
+        if "id_actualizador" in kwargs:
+            orden.id_usuario_mod = kwargs["id_actualizador"]
+        for key, value in kwargs.items():
+            if hasattr(orden, key):
+                setattr(orden, key, value)
+        self.db.commit()
+        self.db.refresh(orden)
+        return orden
+
+    def eliminar_orden(self, orden_id: UUID) -> bool:
+        """Elimina una orden por su UUID."""
+        orden = self.obtener_orden(orden_id)
+        if not orden:
+            return False
+        self.db.delete(orden)
+        self.db.commit()
+        return True

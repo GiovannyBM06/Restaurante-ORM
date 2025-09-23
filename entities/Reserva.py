@@ -9,6 +9,10 @@ from database.config import Base
 
 
 class Reserva(Base):
+    """
+    Modelo de la entidad Reserva para la base de datos.
+    """
+
     __tablename__ = "reserva"
     id_cliente = Column(
         UUID(as_uuid=True), ForeignKey("cliente.id"), primary_key=True, nullable=False

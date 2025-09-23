@@ -9,6 +9,10 @@ from database.config import Base
 
 
 class Factura(Base):
+    """
+    Modelo de la entidad Factura para la base de datos.
+    """
+
     __tablename__ = "factura"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     total = Column(Float, nullable=False)

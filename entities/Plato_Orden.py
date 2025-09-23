@@ -9,6 +9,10 @@ from database.config import Base
 
 
 class Plato_Orden(Base):
+    """
+    Modelo de la entidad Plato_Orden para la base de datos.
+    """
+
     __tablename__ = "plato_orden"
 
     id_orden = Column(

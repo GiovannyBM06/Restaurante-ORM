@@ -9,6 +9,10 @@ from database.config import Base
 
 
 class Orden(Base):
+    """
+    Modelo de la entidad Orden para la base de datos.
+    """
+
     __tablename__ = "orden"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     estado = Column(String, nullable=False, default="Pendiente")

@@ -9,6 +9,10 @@ from database.config import Base
 
 
 class Cliente(Base):
+    """
+    Modelo de la entidad Cliente para la base de datos.
+    """
+
     __tablename__ = "cliente"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     nombre = Column(String(20), nullable=False)
