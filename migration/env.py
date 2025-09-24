@@ -9,39 +9,52 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-# Agregar el directorio raíz al path para importar los modelos
+
+"""
+Agregar el directorio raíz al path para importar los modelos.
+"""
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-# Importar los modelos para que Alembic los detecte
+
+"""
+Importar los modelos para que Alembic los detecte.
+"""
 from database.config import Base
 from entities.Categoria import Categoria
 from entities.Cliente import Cliente
 from entities.Empleado import Empleado
-from entities.Factura import Factura  
+from entities.Factura import Factura
 from entities.Mesa import Mesa
-from entities.Orden import Orden    
+from entities.Orden import Orden
 from entities.Plato import Plato
 from entities.Plato_Orden import Plato_Orden
 from entities.Usuario import Usuario
 from entities.Reserva import Reserva
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+
+"""
+Este es el objeto de configuración de Alembic, que da acceso a los valores del archivo .ini en uso.
+"""
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+
+"""
+Interpretar el archivo de configuración para el logging de Python.
+Esta línea configura los loggers.
+"""
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
+
+"""
+Agregar el objeto MetaData de los modelos para soporte de 'autogenerate'.
+"""
 target_metadata = Base.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+
+"""
+Otros valores de configuración pueden ser adquiridos según las necesidades de env.py.
+"""
 
 
 def get_url():
