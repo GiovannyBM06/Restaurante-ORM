@@ -1,17 +1,6 @@
 from typing import Optional
 from uuid import uuid4, UUID
 
-"""
-from entities.Categoria import Categoria
-from entities.Cliente import Cliente
-from entities.Empleado import Empleado
-from entities.Factura import Factura
-from entities.Mesa import Mesa
-from entities.Orden import Orden
-from entities.Plato import Plato
-from entities.Plato_Orden import Plato_Orden
-from entities.Reserva import Reserva
-"""
 from entities.Usuario import Usuario
 
 from crud.Categoria_crud import CategoriaCRUD
@@ -492,11 +481,11 @@ class SistemaPrincipal:
             if not self.usuario_actual:
                 print("ERROR: No hay usuario autenticado.")
                 return
-            cambios["id_actualizador"] = self.usuario_actual.id
+            id_usuario_mod = self.usuario_actual.id
 
             if cambios:
                 categoria_actualizada = self.categoria_crud.actualizar_categoria(
-                    categoria.id, **cambios
+                    categoria.id,id_usuario_mod ,**cambios
                 )
                 print(f"ÉXITO: Categoría actualizada: {categoria_actualizada}")
             else:
@@ -660,11 +649,11 @@ class SistemaPrincipal:
             if not self.usuario_actual:
                 print("ERROR: No hay usuario autenticado.")
                 return
-            cambios["id_usuario"] = self.usuario_actual.id
+            id_usuario_mod = self.usuario_actual.id
 
             if cambios:
                 cliente_actualizado = self.cliente_crud.actualizar_cliente(
-                    cliente.id, **cambios
+                    cliente.id, id_usuario_mod,**cambios
                 )
                 print(f"ÉXITO: Cliente actualizado: {cliente_actualizado}")
             else:
@@ -806,6 +795,11 @@ class SistemaPrincipal:
                 f"Nuevo salario (actual: {empleado.salario}): "
             ).strip()
 
+            if not self.usuario_actual:
+                print("ERROR: No hay usuario autenticado.")
+                return
+            id_usuario_mod = self.usuario_actual.id
+
             cambios = {}
             if nuevo_nombre:
                 cambios["nombre"] = nuevo_nombre
@@ -817,7 +811,7 @@ class SistemaPrincipal:
                 cambios["salario"] = float(nuevo_salario)
 
             if cambios:
-                actualizado = self.empleado_crud.actualizar_empleado(emp_id, **cambios)
+                actualizado = self.empleado_crud.actualizar_empleado(emp_id,id_usuario_mod, **cambios)
                 print(
                     f"ÉXITO: Empleado actualizado -> {actualizado.nombre} {actualizado.apellido}"
                 )
@@ -936,9 +930,13 @@ class SistemaPrincipal:
             cambios = {}
             if nueva_capacidad:
                 cambios["capacidad"] = int(nueva_capacidad)
-
+            if not self.usuario_actual:
+                print("ERROR: No hay usuario autenticado.")
+                return
+            id_usuario_mod = self.usuario_actual.id
+            
             if cambios:
-                mesa_actualizada = self.mesa_crud.actualizar_mesa(mesa_id, **cambios)
+                mesa_actualizada = self.mesa_crud.actualizar_mesa(mesa_id, id_usuario_mod, **cambios)
                 print(
                     f"ÉXITO: Mesa actualizada -> Capacidad {mesa_actualizada.capacidad}"
                 )
@@ -1073,10 +1071,14 @@ class SistemaPrincipal:
             cambios = {}
             if nuevo_total:
                 cambios["total"] = float(nuevo_total)
+            if not self.usuario_actual:
+                print("ERROR: No hay usuario autenticado.")
+                return
+            id_usuario_mod = self.usuario_actual.id
 
             if cambios:
                 factura_actualizada = self.factura_crud.actualizar_factura(
-                    factura_id, **cambios
+                    factura_id, id_usuario_mod,**cambios
                 )
                 print(
                     f"ÉXITO: Factura actualizada -> ID: {factura_actualizada.id}, Total: {factura_actualizada.total}"
@@ -1229,10 +1231,13 @@ class SistemaPrincipal:
             cambios = {}
             if nuevo_estado:
                 cambios["estado"] = nuevo_estado
-
+            if not self.usuario_actual:
+                print("ERROR: No hay usuario autenticado.")
+                return
+            id_usuario_mod = self.usuario_actual.id
             if cambios:
                 orden_actualizada = self.orden_crud.actualizar_orden(
-                    orden_id, **cambios
+                    orden_id, id_usuario_mod,**cambios
                 )
                 print(
                     f"ÉXITO: Orden actualizada -> ID: {orden_actualizada.id}, Estado: {orden_actualizada.estado}"
@@ -1438,6 +1443,10 @@ class SistemaPrincipal:
                 cambios["descripcion"] = nueva_descripcion
             if nuevo_id_categoria:
                 cambios["id_categoria"] = UUID(nuevo_id_categoria)
+            if not self.usuario_actual:
+                print("ERROR: No hay usuario autenticado.")
+                return
+            id_usuario_mod = self.usuario_actual.id
 
             """id_actualizador (si hay usuario autenticado)"""
             if not self.usuario_actual:
@@ -1447,7 +1456,7 @@ class SistemaPrincipal:
 
             if cambios:
                 plato_actualizado = self.plato_crud.actualizar_plato(
-                    plato.id, **cambios
+                    plato.id, id_usuario_mod,**cambios
                 )
                 print(
                     f"ÉXITO: Plato actualizado -> ID: {plato_actualizado.id}, Nombre: {plato_actualizado.nombre}"
@@ -1600,11 +1609,14 @@ class SistemaPrincipal:
             if not self.usuario_actual:
                 print("ERROR: No hay usuario autenticado.")
                 return
-            cambios["id_actualizador"] = self.usuario_actual.id
+            if not self.usuario_actual:
+                print("ERROR: No hay usuario autenticado.")
+                return
+            id_usuario_mod = self.usuario_actual.id
 
             if cambios:
                 actualizado = self.plato_orden_crud.actualizar_plato_orden(
-                    id_orden, id_plato, **cambios
+                    id_orden, id_plato, id_usuario_mod,**cambios
                 )
                 print(
                     f"ÉXITO: Plato_Orden actualizado -> Cantidad: {actualizado.cantidad}"
@@ -1806,11 +1818,11 @@ class SistemaPrincipal:
             if not self.usuario_actual:
                 print("ERROR: No hay usuario autenticado.")
                 return
-            cambios["id_actualizador"] = self.usuario_actual.id
+            id_usuario_mod = self.usuario_actual.id
 
             if cambios:
                 reserva_actualizada = self.reserva_crud.actualizar_reserva(
-                    id_cliente, id_mesa, **cambios
+                    id_cliente, id_mesa, id_usuario_mod,**cambios
                 )
                 print(
                     f"ÉXITO: Reserva actualizada -> Cliente: {reserva_actualizada.id_cliente}, Mesa: {reserva_actualizada.id_mesa}"

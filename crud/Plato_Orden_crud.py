@@ -54,21 +54,28 @@ class PlatoOrdenCRUD:
         return self.db.query(Plato_Orden).offset(skip).all()
 
     def actualizar_plato_orden(
-        self, id_orden: UUID, id_plato: UUID, **kwargs
+        self, id_orden: UUID, id_plato: UUID, id_usuario_mod: UUID, **kwargs
     ) -> Optional[Plato_Orden]:
-        """Actualiza los campos de un Plato_Orden después de validar."""
+        """Actualiza los campos de un Plato_Orden, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
+        from datetime import datetime
         plato_orden = self.obtener_plato_orden(id_orden, id_plato)
         if not plato_orden:
             return None
+        cambios = False
         if "cantidad" in kwargs and not self._validar_cantidad(kwargs["cantidad"]):
             raise ValueError("Cantidad inválida")
-        if "id_actualizador" in kwargs:
-            plato_orden.id_usuario_mod = kwargs["id_actualizador"]
         for key, value in kwargs.items():
             if hasattr(plato_orden, key):
-                setattr(plato_orden, key, value)
-        self.db.commit()
-        self.db.refresh(plato_orden)
+                if getattr(plato_orden, key) != value:
+                    setattr(plato_orden, key, value)
+                    cambios = True
+        if cambios:
+            if id_usuario_mod:
+                plato_orden.id_usuario_mod = id_usuario_mod
+            if hasattr(plato_orden, "fecha_actualizacion"):
+                plato_orden.fecha_actualizacion = datetime.now()
+            self.db.commit()
+            self.db.refresh(plato_orden)
         return plato_orden
 
     def eliminar_plato_orden(self, id_orden: UUID, id_plato: UUID) -> bool:

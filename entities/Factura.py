@@ -19,7 +19,7 @@ class Factura(Base):
     metodo_pago = Column(String(20), nullable=False)
     id_orden = Column(UUID(as_uuid=True), ForeignKey("orden.id"), nullable=False)
     fecha_registro = Column(Date, nullable=False, default=datetime.now)
-    fecha_actualizacion = Column(Date, default=datetime.now, onupdate=datetime.now)
+    fecha_actualizacion = Column(Date, nullable=True, default=None, onupdate=datetime.now)
     id_usuario = Column(UUID(as_uuid=True), ForeignKey("usuario.id"), nullable=False)
     id_usuario_mod = Column(UUID(as_uuid=True), ForeignKey("usuario.id"))
 

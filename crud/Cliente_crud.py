@@ -66,13 +66,14 @@ class ClienteCRUD:
         """Obtiene una lista de clientes, con salto opcional para paginación."""
         return self.db.query(Cliente).offset(skip).all()
 
-    def actualizar_cliente(self, cliente_id: UUID, **kwargs) -> Optional[Cliente]:
-        """Actualiza los campos de un cliente después de validar."""
+    def actualizar_cliente(self, cliente_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Cliente]:
+        """Actualiza los campos de un cliente, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
 
         cliente = self.obtener_cliente(cliente_id)
         if not cliente:
             return None
+        cambios = False
         if "nombre" in kwargs and not self._validar_nombre(kwargs["nombre"]):
             raise ValueError("Nombre inválido")
         if "apellido" in kwargs and not self._validar_apellido(kwargs["apellido"]):
@@ -81,13 +82,18 @@ class ClienteCRUD:
             raise ValueError("Email inválido")
         if "telefono" in kwargs and not self._validar_telefono(kwargs["telefono"]):
             raise ValueError("Teléfono inválido")
-        if "id_actualizador" in kwargs:
-            cliente.id_usuario_mod = kwargs["id_actualizador"]
         for key, value in kwargs.items():
             if hasattr(cliente, key):
-                setattr(cliente, key, value)
-        self.db.commit()
-        self.db.refresh(cliente)
+                if getattr(cliente, key) != value:
+                    setattr(cliente, key, value)
+                    cambios = True
+        if cambios:
+            if id_usuario_mod:
+                cliente.id_usuario_mod = id_usuario_mod
+            if hasattr(cliente, "fecha_actualizacion"):
+                cliente.fecha_actualizacion = datetime.now()
+            self.db.commit()
+            self.db.refresh(cliente)
         return cliente
 
     def eliminar_cliente(self, cliente_id: UUID) -> bool:

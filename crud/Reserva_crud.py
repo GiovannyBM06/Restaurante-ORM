@@ -62,12 +62,14 @@ class ReservaCRUD:
         return self.db.query(Reserva).offset(skip).all()
 
     def actualizar_reserva(
-        self, id_cliente: UUID, id_mesa: UUID, **kwargs
+        self, id_cliente: UUID, id_mesa: UUID, id_usuario_mod: UUID, **kwargs
     ) -> Optional[Reserva]:
-        """Actualiza los campos de una reserva después de validar."""
+        """Actualiza los campos de una reserva, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
+        from datetime import datetime
         reserva = self.obtener_reserva(id_cliente, id_mesa)
         if not reserva:
             return None
+        cambios = False
         if "cantidad_personas" in kwargs and not self._validar_cantidad_personas(
             kwargs["cantidad_personas"]
         ):
@@ -76,13 +78,18 @@ class ReservaCRUD:
             kwargs["fecha_Hora"]
         ):
             raise ValueError("Fecha y hora inválidas")
-        if "id_actualizador" in kwargs:
-            reserva.id_usuario_mod = kwargs["id_actualizador"]
         for key, value in kwargs.items():
             if hasattr(reserva, key):
-                setattr(reserva, key, value)
-        self.db.commit()
-        self.db.refresh(reserva)
+                if getattr(reserva, key) != value:
+                    setattr(reserva, key, value)
+                    cambios = True
+        if cambios:
+            if id_usuario_mod:
+                reserva.id_usuario_mod = id_usuario_mod
+            if hasattr(reserva, "fecha_actualizacion"):
+                reserva.fecha_actualizacion = datetime.now()
+            self.db.commit()
+            self.db.refresh(reserva)
         return reserva
 
     def eliminar_reserva(self, id_cliente: UUID, id_mesa: UUID) -> bool:

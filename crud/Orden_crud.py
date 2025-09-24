@@ -43,20 +43,27 @@ class OrdenCRUD:
         """Obtiene una lista de órdenes, con salto opcional para paginación."""
         return self.db.query(Orden).offset(skip).all()
 
-    def actualizar_orden(self, orden_id: UUID, **kwargs) -> Optional[Orden]:
-        """Actualiza los campos de una orden después de validar."""
+    def actualizar_orden(self, orden_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Orden]:
+        """Actualiza los campos de una orden, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
+        from datetime import datetime
         orden = self.obtener_orden(orden_id)
         if not orden:
             return None
+        cambios = False
         if "estado" in kwargs and not self._validar_estado(kwargs["estado"]):
             raise ValueError("Estado inválido")
-        if "id_actualizador" in kwargs:
-            orden.id_usuario_mod = kwargs["id_actualizador"]
         for key, value in kwargs.items():
             if hasattr(orden, key):
-                setattr(orden, key, value)
-        self.db.commit()
-        self.db.refresh(orden)
+                if getattr(orden, key) != value:
+                    setattr(orden, key, value)
+                    cambios = True
+        if cambios:
+            if id_usuario_mod:
+                orden.id_usuario_mod = id_usuario_mod
+            if hasattr(orden, "fecha_actualizacion"):
+                orden.fecha_actualizacion = datetime.now()
+            self.db.commit()
+            self.db.refresh(orden)
         return orden
 
     def eliminar_orden(self, orden_id: UUID) -> bool:

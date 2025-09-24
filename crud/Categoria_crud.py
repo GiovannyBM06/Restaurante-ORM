@@ -49,26 +49,29 @@ class CategoriaCRUD:
         """Obtiene una lista de categorías, con salto opcional para paginación."""
         return self.db.query(Categoria).offset(skip).all()
 
-    def actualizar_categoria(self, categoria_id: UUID, **kwargs) -> Optional[Categoria]:
-        """Actualiza los campos de una categoría después de validar."""
+    def actualizar_categoria(self, categoria_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Categoria]:
+        """Actualiza los campos de una categoría, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
 
         categoria = self.obtener_categoria(categoria_id)
         if not categoria:
             return None
+        cambios = False
         if "nombre" in kwargs and not self._validar_nombre(kwargs["nombre"]):
             raise ValueError("Nombre de categoría inválido")
-        if "descripcion" in kwargs and not self._validar_descripcion(
-            kwargs["descripcion"]
-        ):
+        if "descripcion" in kwargs and not self._validar_descripcion(kwargs["descripcion"]):
             raise ValueError("Descripción inválida (1-200 caracteres)")
-        if "id_actualizador" in kwargs:
-            categoria.id_usuario_mod = kwargs["id_actualizador"]
         for key, value in kwargs.items():
             if hasattr(categoria, key):
-                setattr(categoria, key, value)
-        self.db.commit()
-        self.db.refresh(categoria)
+                if getattr(categoria, key) != value:
+                    setattr(categoria, key, value)
+                    cambios = True
+        if cambios:
+            if id_usuario_mod:
+                categoria.id_usuario_mod = id_usuario_mod
+            categoria.fecha_actualizacion = datetime.now()
+            self.db.commit()
+            self.db.refresh(categoria)
         return categoria
 
     def eliminar_categoria(self, categoria_id: UUID) -> bool:

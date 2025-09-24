@@ -62,11 +62,13 @@ class PlatoCRUD:
         """Obtiene una lista de platos, con salto opcional para paginación."""
         return self.db.query(Plato).offset(skip).all()
 
-    def actualizar_plato(self, plato_id: UUID, **kwargs) -> Optional[Plato]:
-        """Actualiza los campos de un plato después de validar."""
+    def actualizar_plato(self, plato_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Plato]:
+        """Actualiza los campos de un plato, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
+        from datetime import datetime
         plato = self.obtener_plato(plato_id)
         if not plato:
             return None
+        cambios = False
         if "nombre" in kwargs and not self._validar_nombre(kwargs["nombre"]):
             raise ValueError("Nombre inválido")
         if "precio_unidad" in kwargs and not self._validar_precio(
@@ -77,13 +79,18 @@ class PlatoCRUD:
             kwargs["descripcion"]
         ):
             raise ValueError("Descripción inválida")
-        if "id_actualizador" in kwargs:
-            plato.id_usuario_mod = kwargs["id_actualizador"]
         for key, value in kwargs.items():
             if hasattr(plato, key):
-                setattr(plato, key, value)
-        self.db.commit()
-        self.db.refresh(plato)
+                if getattr(plato, key) != value:
+                    setattr(plato, key, value)
+                    cambios = True
+        if cambios:
+            if id_usuario_mod:
+                plato.id_usuario_mod = id_usuario_mod
+            if hasattr(plato, "fecha_actualizacion"):
+                plato.fecha_actualizacion = datetime.now()
+            self.db.commit()
+            self.db.refresh(plato)
         return plato
 
     def eliminar_plato(self, plato_id: UUID) -> bool:

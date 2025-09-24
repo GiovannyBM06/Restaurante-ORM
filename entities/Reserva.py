@@ -25,7 +25,7 @@ class Reserva(Base):
     fecha_Hora = Column(DateTime, nullable=False)
     Estado = Column(Boolean, nullable=False)
     fecha_registro = Column(Date, nullable=False, default=datetime.now)
-    fecha_actualizacion = Column(Date, default=datetime.now, onupdate=datetime.now)
+    fecha_actualizacion = Column(Date, nullable=True, default=None, onupdate=datetime.now)
     id_usuario = Column(UUID(as_uuid=True), ForeignKey("usuario.id"), nullable=False)
     id_usuario_mod = Column(UUID(as_uuid=True), ForeignKey("usuario.id"))
 

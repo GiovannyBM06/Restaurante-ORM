@@ -49,26 +49,32 @@ class FacturaCRUD:
         """Obtiene una lista de facturas, con salto opcional para paginación."""
         return self.db.query(Factura).offset(skip).all()
 
-    def actualizar_factura(self, factura_id: UUID, **kwargs) -> Optional[Factura]:
-        """Actualiza los campos de una factura después de validar."""
+    def actualizar_factura(self, factura_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Factura]:
+        """Actualiza los campos de una factura, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
 
         factura = self.obtener_factura(factura_id)
         if not factura:
             return None
+        cambios = False
         if "total" in kwargs and not self._validar_total(kwargs["total"]):
             raise ValueError("Total inválido")
         if "metodo_pago" in kwargs and not self._validar_metodo_pago(
             kwargs["metodo_pago"]
         ):
             raise ValueError("Método de pago inválido")
-        if "id_actualizador" in kwargs:
-            factura.id_usuario_mod = kwargs["id_actualizador"]
         for key, value in kwargs.items():
             if hasattr(factura, key):
-                setattr(factura, key, value)
-        self.db.commit()
-        self.db.refresh(factura)
+                if getattr(factura, key) != value:
+                    setattr(factura, key, value)
+                    cambios = True
+        if cambios:
+            if id_usuario_mod:
+                factura.id_usuario_mod = id_usuario_mod
+            if hasattr(factura, "fecha_actualizacion"):
+                factura.fecha_actualizacion = datetime.now()
+            self.db.commit()
+            self.db.refresh(factura)
         return factura
 
     def eliminar_factura(self, factura_id: UUID) -> bool:

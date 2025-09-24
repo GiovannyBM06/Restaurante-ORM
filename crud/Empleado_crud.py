@@ -64,13 +64,14 @@ class EmpleadoCRUD:
         """Obtiene una lista de empleados, con salto opcional para paginación."""
         return self.db.query(Empleado).offset(skip).all()
 
-    def actualizar_empleado(self, empleado_id: UUID, **kwargs) -> Optional[Empleado]:
-        """Actualiza los campos de un empleado después de validar."""
+    def actualizar_empleado(self, empleado_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Empleado]:
+        """Actualiza los campos de un empleado, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
 
         empleado = self.obtener_empleado(empleado_id)
         if not empleado:
             return None
+        cambios = False
         if "nombre" in kwargs and not self._validar_nombre(kwargs["nombre"]):
             raise ValueError("Nombre inválido")
         if "apellido" in kwargs and not self._validar_apellido(kwargs["apellido"]):
@@ -79,13 +80,18 @@ class EmpleadoCRUD:
             raise ValueError("Rol inválido")
         if "salario" in kwargs and not self._validar_salario(kwargs["salario"]):
             raise ValueError("Salario inválido")
-        if "id_actualizador" in kwargs:
-            empleado.id_usuario_mod = kwargs["id_actualizador"]
         for key, value in kwargs.items():
             if hasattr(empleado, key):
-                setattr(empleado, key, value)
-        self.db.commit()
-        self.db.refresh(empleado)
+                if getattr(empleado, key) != value:
+                    setattr(empleado, key, value)
+                    cambios = True
+        if cambios:
+            if id_usuario_mod:
+                empleado.id_usuario_mod = id_usuario_mod
+            if hasattr(empleado, "fecha_actualizacion"):
+                empleado.fecha_actualizacion = datetime.now()
+            self.db.commit()
+            self.db.refresh(empleado)
         return empleado
 
     def eliminar_empleado(self, empleado_id: UUID) -> bool:

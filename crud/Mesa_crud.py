@@ -35,20 +35,27 @@ class MesaCRUD:
         """Obtiene una lista de mesas, con salto opcional para paginación."""
         return self.db.query(Mesa).offset(skip).all()
 
-    def actualizar_mesa(self, mesa_id: UUID, **kwargs) -> Optional[Mesa]:
-        """Actualiza los campos de una mesa después de validar."""
+    def actualizar_mesa(self, mesa_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Mesa]:
+        """Actualiza los campos de una mesa, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
+        from datetime import datetime
         mesa = self.obtener_mesa(mesa_id)
         if not mesa:
             return None
+        cambios = False
         if "capacidad" in kwargs and not self._validar_capacidad(kwargs["capacidad"]):
             raise ValueError("Capacidad inválida")
-        if "id_actualizador" in kwargs:
-            mesa.id_usuario_mod = kwargs["id_actualizador"]
         for key, value in kwargs.items():
             if hasattr(mesa, key):
-                setattr(mesa, key, value)
-        self.db.commit()
-        self.db.refresh(mesa)
+                if getattr(mesa, key) != value:
+                    setattr(mesa, key, value)
+                    cambios = True
+        if cambios:
+            if id_usuario_mod:
+                mesa.id_usuario_mod = id_usuario_mod
+            if hasattr(mesa, "fecha_actualizacion"):
+                mesa.fecha_actualizacion = datetime.now()
+            self.db.commit()
+            self.db.refresh(mesa)
         return mesa
 
     def eliminar_mesa(self, mesa_id: UUID) -> bool:
