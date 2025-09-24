@@ -998,14 +998,14 @@ class SistemaPrincipal:
         try:
             print("\n--- CREAR FACTURA ---")
 
-            clientes = self.cliente_crud.obtener_clientes()
-            if not clientes:
-                print("ERROR: No hay clientes registrados.")
+            ordenes = self.orden_crud.obtener_ordenes()
+            if not ordenes:
+                print("ERROR: No hay ordenes registradas.")
                 return
-            print("\n--- CLIENTES DISPONIBLES ---")
-            for i, cliente in enumerate(clientes, 1):
-                print(f"{i}. ID: {cliente.id} | {cliente.nombre} {cliente.apellido}")
-            cliente_id = input("Ingrese el ID del cliente: ").strip()
+            print("\n--- ORDENES ---")
+            for i, orden in enumerate(ordenes, 1):
+                print(f"{i}. ID: {orden.id} | {orden.estado}")
+            cliente_id = input("Ingrese el ID de la orden: ").strip()
 
             usuarios = self.usuario_crud.obtener_usuarios()
             if not usuarios:
