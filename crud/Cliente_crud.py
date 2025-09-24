@@ -4,7 +4,6 @@ from typing import Optional, List
 from uuid import UUID
 import re
 
-
 class ClienteCRUD:
     """
     Operaciones CRUD para la entidad Cliente.

@@ -3,8 +3,6 @@ from entities.Empleado import Empleado
 from typing import Optional, List
 from uuid import UUID
 import re
-
-
 class EmpleadoCRUD:
     """
     Operaciones CRUD para la entidad Empleado.
