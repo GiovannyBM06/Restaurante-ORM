@@ -62,9 +62,12 @@ class PlatoCRUD:
         """Obtiene una lista de platos, con salto opcional para paginación."""
         return self.db.query(Plato).offset(skip).all()
 
-    def actualizar_plato(self, plato_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Plato]:
+    def actualizar_plato(
+        self, plato_id: UUID, id_usuario_mod: UUID, **kwargs
+    ) -> Optional[Plato]:
         """Actualiza los campos de un plato, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
+
         plato = self.obtener_plato(plato_id)
         if not plato:
             return None
