@@ -35,9 +35,12 @@ class MesaCRUD:
         """Obtiene una lista de mesas, con salto opcional para paginación."""
         return self.db.query(Mesa).offset(skip).all()
 
-    def actualizar_mesa(self, mesa_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Mesa]:
+    def actualizar_mesa(
+        self, mesa_id: UUID, id_usuario_mod: UUID, **kwargs
+    ) -> Optional[Mesa]:
         """Actualiza los campos de una mesa, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
+
         mesa = self.obtener_mesa(mesa_id)
         if not mesa:
             return None

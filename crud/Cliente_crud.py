@@ -4,6 +4,7 @@ from typing import Optional, List
 from uuid import UUID
 import re
 
+
 class ClienteCRUD:
     """
     Operaciones CRUD para la entidad Cliente.
@@ -65,7 +66,9 @@ class ClienteCRUD:
         """Obtiene una lista de clientes, con salto opcional para paginación."""
         return self.db.query(Cliente).offset(skip).all()
 
-    def actualizar_cliente(self, cliente_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Cliente]:
+    def actualizar_cliente(
+        self, cliente_id: UUID, id_usuario_mod: UUID, **kwargs
+    ) -> Optional[Cliente]:
         """Actualiza los campos de un cliente, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
 

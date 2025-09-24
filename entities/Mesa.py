@@ -17,7 +17,9 @@ class Mesa(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     capacidad = Column(Integer, nullable=False)
     fecha_registro = Column(Date, nullable=False, default=datetime.now)
-    fecha_actualizacion = Column(Date, nullable=True, default=None, onupdate=datetime.now)
+    fecha_actualizacion = Column(
+        Date, nullable=True, default=None, onupdate=datetime.now
+    )
     id_usuario = Column(UUID(as_uuid=True), ForeignKey("usuario.id"), nullable=False)
     id_usuario_mod = Column(UUID(as_uuid=True), ForeignKey("usuario.id"))
 
