@@ -19,7 +19,9 @@ class Orden(Base):
     id_mesa = Column(UUID(as_uuid=True), ForeignKey("mesa.id"), nullable=False)
     id_empleado = Column(UUID(as_uuid=True), ForeignKey("empleado.id"), nullable=False)
     fecha_registro = Column(Date, nullable=False, default=datetime.now)
-    fecha_actualizacion = Column(Date, nullable=True, default=None, onupdate=datetime.now)
+    fecha_actualizacion = Column(
+        Date, nullable=True, default=None, onupdate=datetime.now
+    )
     id_usuario = Column(UUID(as_uuid=True), ForeignKey("usuario.id"), nullable=False)
     id_usuario_mod = Column(UUID(as_uuid=True), ForeignKey("usuario.id"))
 

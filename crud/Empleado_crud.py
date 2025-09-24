@@ -3,6 +3,8 @@ from entities.Empleado import Empleado
 from typing import Optional, List
 from uuid import UUID
 import re
+
+
 class EmpleadoCRUD:
     """
     Operaciones CRUD para la entidad Empleado.
@@ -62,7 +64,9 @@ class EmpleadoCRUD:
         """Obtiene una lista de empleados, con salto opcional para paginación."""
         return self.db.query(Empleado).offset(skip).all()
 
-    def actualizar_empleado(self, empleado_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Empleado]:
+    def actualizar_empleado(
+        self, empleado_id: UUID, id_usuario_mod: UUID, **kwargs
+    ) -> Optional[Empleado]:
         """Actualiza los campos de un empleado, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
 

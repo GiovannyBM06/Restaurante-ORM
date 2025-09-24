@@ -66,6 +66,7 @@ class ReservaCRUD:
     ) -> Optional[Reserva]:
         """Actualiza los campos de una reserva, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
+
         reserva = self.obtener_reserva(id_cliente, id_mesa)
         if not reserva:
             return None

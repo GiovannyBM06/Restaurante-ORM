@@ -58,6 +58,7 @@ class PlatoOrdenCRUD:
     ) -> Optional[Plato_Orden]:
         """Actualiza los campos de un Plato_Orden, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
+
         plato_orden = self.obtener_plato_orden(id_orden, id_plato)
         if not plato_orden:
             return None

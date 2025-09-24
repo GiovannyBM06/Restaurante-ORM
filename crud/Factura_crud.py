@@ -49,7 +49,9 @@ class FacturaCRUD:
         """Obtiene una lista de facturas, con salto opcional para paginación."""
         return self.db.query(Factura).offset(skip).all()
 
-    def actualizar_factura(self, factura_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Factura]:
+    def actualizar_factura(
+        self, factura_id: UUID, id_usuario_mod: UUID, **kwargs
+    ) -> Optional[Factura]:
         """Actualiza los campos de una factura, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
 
