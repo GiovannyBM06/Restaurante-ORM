@@ -9,12 +9,16 @@ from database.config import Base
 
 
 class Categoria(Base):
+    """
+    Modelo de la entidad Categoria para la base de datos.
+    """
+
     __tablename__ = "categoria"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     nombre = Column(String(20), nullable=False)
     descripcion = Column(Text, nullable=True)
     fecha_registro = Column(Date, nullable=False, default=datetime.now)
-    fecha_actualizacion = Column(Date, default=datetime.now, onupdate=datetime.now)
+    fecha_actualizacion = Column(Date, nullable=True, default=None, onupdate=datetime.now)
     id_usuario = Column(UUID(as_uuid=True), ForeignKey("usuario.id"), nullable=False)
     id_usuario_mod = Column(UUID(as_uuid=True), ForeignKey("usuario.id"))
 

@@ -48,19 +48,6 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Base para los modelos
 Base = declarative_base()
 
-# Importar todos los modelos para asegurar el registro correcto de las tablas
-from entities.Usuario import Usuario
-from entities.Plato import Plato
-from entities.Categoria import Categoria
-from entities.Empleado import Empleado
-from entities.Cliente import Cliente
-from entities.Factura import Factura
-from entities.Mesa import Mesa
-from entities.Orden import Orden
-from entities.Plato_Orden import Plato_Orden
-from entities.Reserva import Reserva
-
-
 def get_db():
     """
     Generador de sesiones de base de datos
