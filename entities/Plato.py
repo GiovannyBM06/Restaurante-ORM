@@ -23,7 +23,9 @@ class Plato(Base):
         UUID(as_uuid=True), ForeignKey("categoria.id"), nullable=False
     )
     fecha_registro = Column(Date, nullable=False, default=datetime.now)
-    fecha_actualizacion = Column(Date, nullable=True, default=None, onupdate=datetime.now)
+    fecha_actualizacion = Column(
+        Date, nullable=True, default=None, onupdate=datetime.now
+    )
     id_usuario = Column(UUID(as_uuid=True), ForeignKey("usuario.id"), nullable=False)
     id_usuario_mod = Column(UUID(as_uuid=True), ForeignKey("usuario.id"))
 

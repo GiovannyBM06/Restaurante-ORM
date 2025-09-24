@@ -43,9 +43,12 @@ class OrdenCRUD:
         """Obtiene una lista de órdenes, con salto opcional para paginación."""
         return self.db.query(Orden).offset(skip).all()
 
-    def actualizar_orden(self, orden_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Orden]:
+    def actualizar_orden(
+        self, orden_id: UUID, id_usuario_mod: UUID, **kwargs
+    ) -> Optional[Orden]:
         """Actualiza los campos de una orden, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
+
         orden = self.obtener_orden(orden_id)
         if not orden:
             return None

@@ -49,7 +49,9 @@ class CategoriaCRUD:
         """Obtiene una lista de categorías, con salto opcional para paginación."""
         return self.db.query(Categoria).offset(skip).all()
 
-    def actualizar_categoria(self, categoria_id: UUID, id_usuario_mod: UUID, **kwargs) -> Optional[Categoria]:
+    def actualizar_categoria(
+        self, categoria_id: UUID, id_usuario_mod: UUID, **kwargs
+    ) -> Optional[Categoria]:
         """Actualiza los campos de una categoría, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
 
@@ -59,7 +61,9 @@ class CategoriaCRUD:
         cambios = False
         if "nombre" in kwargs and not self._validar_nombre(kwargs["nombre"]):
             raise ValueError("Nombre de categoría inválido")
-        if "descripcion" in kwargs and not self._validar_descripcion(kwargs["descripcion"]):
+        if "descripcion" in kwargs and not self._validar_descripcion(
+            kwargs["descripcion"]
+        ):
             raise ValueError("Descripción inválida (1-200 caracteres)")
         for key, value in kwargs.items():
             if hasattr(categoria, key):
