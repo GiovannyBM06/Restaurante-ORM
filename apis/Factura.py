@@ -8,15 +8,19 @@ from schemas import *
 
 router = APIRouter(prefix="/facturas", tags=["facturas"])
 
-"""Métodos get para Factura"""
-@router.get("/", response_model=List[FacturaResponse])
+
+@router.get("/", response_model=list[FacturaResponse])
 async def obtener_facturas(db: Session = Depends(get_db)):
     try:
         factura_crud = FacturaCRUD(db)
         facturas = factura_crud.obtener_facturas()
         return facturas
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al obtener facturas: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener facturas: {str(e)}",
+        )
+
 
 @router.get("/{factura_id}", response_model=FacturaResponse)
 async def obtener_factura(factura_id: UUID, db: Session = Depends(get_db)):
@@ -24,14 +28,19 @@ async def obtener_factura(factura_id: UUID, db: Session = Depends(get_db)):
         factura_crud = FacturaCRUD(db)
         factura = factura_crud.obtener_factura(factura_id)
         if not factura:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Factura no encontrada")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Factura no encontrada"
+            )
         return factura
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al obtener factura: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener factura: {str(e)}",
+        )
 
-"""Método post para Factura"""
+
 @router.post("/", response_model=FacturaResponse, status_code=status.HTTP_201_CREATED)
 async def crear_factura(datos_factura: FacturaCreate, db: Session = Depends(get_db)):
     try:
@@ -41,40 +50,61 @@ async def crear_factura(datos_factura: FacturaCreate, db: Session = Depends(get_
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al crear factura: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al crear factura: {str(e)}",
+        )
 
-"""Método put para Factura"""
+
 @router.put("/{factura_id}", response_model=FacturaResponse)
-async def actualizar_factura(factura_id: UUID, datos_factura: FacturaUpdate, db: Session = Depends(get_db)):
+async def actualizar_factura(
+    factura_id: UUID, datos_factura: FacturaUpdate, db: Session = Depends(get_db)
+):
     try:
         factura_crud = FacturaCRUD(db)
         factura_existe = factura_crud.obtener_factura(factura_id)
         if not factura_existe:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Factura no encontrada")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Factura no encontrada"
+            )
         datos_actualizar = datos_factura.dict(exclude_unset=True)
-        factura_actualizada = factura_crud.actualizar_factura(factura_id, **datos_actualizar)
+        id_usuario_mod = datos_actualizar.pop("id_usuario_mod", None)
+        factura_actualizada = factura_crud.actualizar_factura(
+            factura_id, id_usuario_mod=id_usuario_mod, **datos_actualizar
+        )
         return factura_actualizada
     except HTTPException:
         raise
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al actualizar factura: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al actualizar factura: {str(e)}",
+        )
 
-"""Método delete para Factura"""
+
 @router.delete("/{factura_id}", response_model=RespuestaAPI)
 async def eliminar_factura(factura_id: UUID, db: Session = Depends(get_db)):
     try:
         factura_crud = FacturaCRUD(db)
         factura_existe = factura_crud.obtener_factura(factura_id)
         if not factura_existe:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Factura no encontrada")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Factura no encontrada"
+            )
         eliminado = factura_crud.eliminar_factura(factura_id)
         if eliminado:
             return RespuestaAPI(mensaje="Factura eliminada exitosamente", exito=True)
         else:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al eliminar factura")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Error al eliminar factura",
+            )
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error al eliminar factura: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al eliminar factura: {str(e)}",
+        )

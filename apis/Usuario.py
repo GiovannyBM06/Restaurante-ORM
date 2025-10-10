@@ -8,21 +8,22 @@ from schemas import *
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
-"""Métodos get para usuario"""
-@router.get("/", response_model=List[UsuarioResponse])
+
+@router.get("/", response_model=list[UsuarioResponse])
 async def obtener_usuarios(
-   skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+    skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 ):
-    try: 
-        UsuarioCrud = UsuarioCRUD(db)
-        usuarios = UsuarioCRUD.obtener_usuarios()
+    try:
+        usuario_crud = UsuarioCRUD(db)
+        usuarios = usuario_crud.obtener_usuarios(skip=skip, limit=limit)
         return usuarios
     except Exception as e:
         raise HTTPException(
-            status_code= status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtenmer los usuarios: {str(e)}"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener los usuarios: {str(e)}",
         )
-    
+
+
 @router.get("/{usuario_id}", response_model=UsuarioResponse)
 async def obtener_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
     try:
@@ -40,6 +41,7 @@ async def obtener_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al obtener usuario: {str(e)}",
         )
+
 
 @router.get("/email/{email}", response_model=UsuarioResponse)
 async def obtener_usuario_con_email(email: str, db: Session = Depends(get_db)):
@@ -59,14 +61,16 @@ async def obtener_usuario_con_email(email: str, db: Session = Depends(get_db)):
             detail=f"Error al obtener usuario: {str(e)}",
         )
 
-@router.get("/Nombre/{nombre}", response_model=List[UsuarioResponse])
-async def obtener_usuario_con_nombre(nombre:str, db:Session = Depends(get_db)):
+
+@router.get("/nombre/{nombre}", response_model=list[UsuarioResponse])
+async def obtener_usuario_con_nombre(nombre: str, db: Session = Depends(get_db)):
     try:
-        usuario_crud= UsuarioCRUD(db)
+        usuario_crud = UsuarioCRUD(db)
         usuarios = usuario_crud.obtener_usuarios_con_nombre(nombre)
         if not usuarios:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No se encontraron usuarios",
             )
         return usuarios
     except Exception as e:
@@ -74,18 +78,17 @@ async def obtener_usuario_con_nombre(nombre:str, db:Session = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al obtener usuario: {str(e)}",
         )
-    
-"""Métodos post para usuarios"""
+
 
 @router.post("/", response_model=UsuarioResponse, status_code=status.HTTP_201_CREATED)
-async def crear_usuario(datos_usuario:UsuarioCreate, db: Session = Depends(get_db)):
+async def crear_usuario(datos_usuario: UsuarioCreate, db: Session = Depends(get_db)):
     try:
-        usuario_crud= UsuarioCRUD(db)
+        usuario_crud = UsuarioCRUD(db)
         usuario = usuario_crud.crear_usuario(
-            nombre= datos_usuario.nombre,
-            apellido= datos_usuario.apellido,
-            email= datos_usuario.email,
-            contraseña= datos_usuario.contraseña
+            nombre=datos_usuario.nombre,
+            apellido=datos_usuario.apellido,
+            email=datos_usuario.email,
+            contraseña=datos_usuario.contraseña,
         )
         return usuario
     except ValueError as e:
@@ -96,14 +99,13 @@ async def crear_usuario(datos_usuario:UsuarioCreate, db: Session = Depends(get_d
             detail=f"Error al crear usuario: {str(e)}",
         )
 
+
 @router.post("/{usuario_id}/cambiar-contraseña", response_model=RespuestaAPI)
 async def cambiar_contraseña(
-    usuario_id:UUID, dato_cambiar: CambioContraseña, db: Session= Depends(get_db)
+    usuario_id: UUID, dato_cambiar: CambioContraseña, db: Session = Depends(get_db)
 ):
     try:
         usuario_crud = UsuarioCRUD(db)
-
-        # Verificar que el usuario existe
         usuario_existente = usuario_crud.obtener_usuario(usuario_id)
         if not usuario_existente:
             raise HTTPException(
@@ -130,9 +132,7 @@ async def cambiar_contraseña(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al cambiar contraseña: {str(e)}",
         )
-    
 
-"""Métodos put para usuarios"""
 
 @router.put("/{usuario_id}", response_model=UsuarioResponse)
 async def actualizar_usuario(
@@ -143,10 +143,13 @@ async def actualizar_usuario(
         usuario_existe = usuario_crud.obtener_usuario(usuario_id)
         if not usuario_existe:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND
+                status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
             )
+
         datos_actualizar = datos_usuario.dict(exclude_unset=True)
-        usuario_actualizado = usuario_crud.actualizar_usuario(usuario_id, **datos_actualizar)
+        usuario_actualizado = usuario_crud.actualizar_usuario(
+            usuario_id, **datos_actualizar
+        )
         return usuario_actualizado
     except HTTPException:
         raise
@@ -157,18 +160,18 @@ async def actualizar_usuario(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al actualizar usuario: {str(e)}",
         )
-    
-"""Método delete para usuario"""
 
-@router.delete("/{usuario_id}", response_model= RespuestaAPI)
-async def eliminar_usuario(usuario_id: UUID, db: Session= Depends(get_db)):
+
+@router.delete("/{usuario_id}", response_model=RespuestaAPI)
+async def eliminar_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
     try:
-        usuario_crud= UsuarioCRUD(db)
+        usuario_crud = UsuarioCRUD(db)
         usuario_existe = usuario_crud.obtener_usuario(usuario_id)
         if not usuario_existe:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND
+                status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
             )
+
         eliminado = usuario_crud.eliminar_usuario(usuario_id)
         if eliminado:
             return RespuestaAPI(mensaje="Usuario eliminado exitosamente", exito=True)

@@ -12,8 +12,10 @@ El proyecto está organizado en las siguientes carpetas y archivos principales:
 
 - `entities/`: Contiene modelos de datos (ORM) para cada entidad del restaurante (Usuario, Cliente, Empleado, Factura, Mesa, Orden, Plato, Plato_Orden, Reserva, Categoria).
 - `crud/`: Clases CRUD para cada entidad, con validaciones y operaciones básicas realizadas en las bases de datos (crear, obtener, actualizar, eliminar).
+- `apis/`: Contiene la estructura de una api y los respectivos métodos get, put, post y delete para cada entidad. 
 - `database/`: Configuración de la base de datos y migraciones.
-- `main.py`: Punto de entrada del sistema, contiene la lógica principal y menús interactivos por medio de consola.
+- `main.py`: Contine el arranque de la API y la configuración necesaria en uvicorn, al ejecutarlo se despliega el Swagger de la API.
+- `schemas.py`: Este documento define modelos de datos usando Pydantic para gestionar entidades del restaurante
 - `README.md`: Documento de guía (Este archivo).
 - `requirements.txt`: Dependencias del proyecto.
 
@@ -37,10 +39,10 @@ Antes de continuar debes estar seguro de tener instalado Python:
 	```
 	python main.py
 	```
-
+    Una vez ejecutado se generará el Swagger en el puerto local 4000, desde allí se podran realizar las operaciones descritas en el CRUD para cada entidad. 
 ## Descripción de la lógica de negocio
 
-El sistema permite gestionar un restaurante, esto a travez de un menú gráfico mostrado por medio de cosola, la gestion se da por medio de operaciones CRUD (Create, Read, Update y Delete) sobre las entidades principales:
+El sistema permite gestionar un restaurante, esto a travez de un swagger ejecutado en el puerto 4000, la gestion se da por medio de las operaciones get, post, put y delete sobre las entidades principales:
 
 - **Usuarios**: Representa a los administradores 
     - Permite:

@@ -120,9 +120,9 @@ class UsuarioCRUD:
         self.db.commit()
         return True
 
-    def obtener_usuarios(self, skip: int = 0) -> List[Usuario]:
-        """Obtiene una lista de usuarios, con salto opcional para paginación."""
-        return self.db.query(Usuario).offset(skip).all()
+    def obtener_usuarios(self, skip: int = 0, limit: int = 100) -> List[Usuario]:
+        """Obtiene una lista de usuarios, con salto opcional para paginación y limite opcional."""
+        return self.db.query(Usuario).offset(skip).limit(limit).all()
 
     def actualizar_usuario(self, usuario_id: UUID, **kwargs) -> Optional[Usuario]:
         """Actualiza los campos de un usuario después de validar."""
