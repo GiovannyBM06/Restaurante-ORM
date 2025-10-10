@@ -1,17 +1,21 @@
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 """Modelo base para la entidad Usuario"""
+
+
 class UsuarioBase(BaseModel):
-    nombre: str 
-    apellido: str 
+    nombre: str
+    apellido: str
     email: EmailStr
     contraseña: str
 
+
 class UsuarioCreate(UsuarioBase):
     pass
+
 
 class UsuarioUpdate(BaseModel):
     nombre: Optional[str] = None
@@ -19,216 +23,326 @@ class UsuarioUpdate(BaseModel):
     email: Optional[EmailStr] = None
     contraseña: Optional[str] = None
 
+
 class UsuarioResponse(UsuarioBase):
     id: UUID
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime] = None
+
     class Config:
         from_attributes = True
+
 
 class UsuarioLogin(BaseModel):
     nombre_usuario: str
     contraseña: str
 
+
 class CambioContraseña(BaseModel):
     contraseña_actual: str
     nueva_contraseña: str
+
 
 class loginResponse(BaseModel):
     clave: str
     nombre_usuario: UsuarioResponse
 
+
 """Modelo base para la entidad Categoria"""
+
+
+from datetime import date
+from uuid import UUID
+from pydantic import BaseModel
+from typing import Optional
+
 
 class CategoriaBase(BaseModel):
     nombre: str
-    descripcion: str 
+    descripcion: Optional[str] = None
+
 
 class CategoriaCreate(CategoriaBase):
-    pass 
+    id_usuario: UUID
+
 
 class CategoriaUpdate(BaseModel):
     nombre: Optional[str] = None
     descripcion: Optional[str] = None
+    id_usuario_mod: Optional[UUID] = None
+
 
 class CategoriaResponse(CategoriaBase):
     id: UUID
-    fecha_creacion :datetime
-    fecha_actulizacion : Optional[datetime] = None
+    fecha_registro: date
+    fecha_actualizacion: Optional[date] = None
+    id_usuario: UUID
+    id_usuario_mod: Optional[UUID] = None
+
 
 """Modelo base para la entidad Cliente"""
 
-class ClienteBase (BaseModel):
-    nombre:str
-    apellido:str
-    email: EmailStr
+
+class ClienteBase(BaseModel):
+    nombre: str
+    apellido: str
+    email: EmailStr = Field(..., alias="Email")
     telefono: str
 
+    class Config:
+        populate_by_name = True
+
+
 class ClienteCreate(ClienteBase):
-    pass 
+    id_usuario: UUID
+
 
 class ClienteUpdate(BaseModel):
     nombre: Optional[str] = None
     apellido: Optional[str] = None
-    email: Optional[EmailStr] = None
+    email: Optional[EmailStr] = Field(None, alias="Email")
     telefono: Optional[str] = None
+    id_usuario_mod: Optional[UUID] = None
 
-class ClienteResponse(BaseModel):
-    id:UUID
-    fecha_creación: datetime
-    fecha_actualización: Optional[datetime] = None
+    class Config:
+        populate_by_name = True
+
+
+class ClienteResponse(ClienteBase):
+    id: UUID
+    fecha_registro: date
+    fecha_actualizacion: Optional[date] = None
+    id_usuario: UUID
+    id_usuario_mod: Optional[UUID] = None
+
     class Config:
         from_attributes = True
- 
+        populate_by_name = True
+
+
 """Modelo base para la entidad Empleado"""
+
+
 class EmpleadoBase(BaseModel):
     nombre: str
     apellido: str
     rol: str
-    salario: int 
+    salario: int
+
 
 class EmpleadoCreate(EmpleadoBase):
-    pass
+    id_usuario: UUID
+
 
 class EmpleadoUpdate(BaseModel):
     nombre: Optional[str] = None
     apellido: Optional[str] = None
     rol: Optional[str] = None
     salario: Optional[int] = None
+    id_usuario_mod: Optional[UUID] = None
+
 
 class EmpleadoResponse(EmpleadoBase):
     id: UUID
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime] = None
+    fecha_registro: date
+    fecha_actualizacion: Optional[date] = None
+    id_usuario: UUID
+    id_usuario_mod: Optional[UUID] = None
+
     class Config:
         from_attributes = True
 
+
 """Modelo base para la entidad Factura"""
+
+
 class FacturaBase(BaseModel):
     total: float
     metodo_pago: str
+    id_orden: UUID
+
 
 class FacturaCreate(FacturaBase):
-    pass
+    id_usuario: UUID
+
 
 class FacturaUpdate(BaseModel):
     total: Optional[float] = None
-    metodo_pago:str
+    metodo_pago: Optional[str] = None
+    id_usuario_mod: UUID
+
 
 class FacturaResponse(FacturaBase):
     id: UUID
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime] = None
+    fecha_registro: date
+    fecha_actualizacion: Optional[date] = None
+    id_usuario: UUID
+    id_usuario_mod: Optional[UUID] = None
+
     class Config:
         from_attributes = True
 
+
 """Modelo base para la entidad Mesa"""
+
+
 class MesaBase(BaseModel):
     capacidad: int
 
+
 class MesaCreate(MesaBase):
-    pass
+    id_usuario: UUID
+
 
 class MesaUpdate(BaseModel):
     capacidad: Optional[int] = None
+    id_usuario_mod: Optional[UUID] = None
+
 
 class MesaResponse(MesaBase):
     id: UUID
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime] = None
+    fecha_registro: date
+    fecha_actualizacion: Optional[date] = None
+    id_usuario: UUID
+    id_usuario_mod: Optional[UUID] = None
+
     class Config:
         from_attributes = True
 
+
 """Modelo base para la entidad Orden"""
+
+
 class OrdenBase(BaseModel):
-    estado: str 
+    estado: str
+    id_mesa: UUID
+    id_empleado: UUID
+
 
 class OrdenCreate(OrdenBase):
-    pass
+    id_usuario: UUID
+
 
 class OrdenUpdate(BaseModel):
     estado: Optional[str] = None
+    id_mesa: Optional[UUID] = None
+    id_empleado: Optional[UUID] = None
+    id_usuario_mod: Optional[UUID] = None
+
 
 class OrdenResponse(OrdenBase):
     id: UUID
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime] = None
+    fecha_registro: date
+    fecha_actualizacion: Optional[date] = None
+    id_usuario: UUID
+    id_usuario_mod: Optional[UUID] = None
+
     class Config:
         from_attributes = True
+
 
 """Modelo base para la entidad Plato_Orden"""
+
+
 class PlatoOrdenBase(BaseModel):
-    orden_id: UUID
-    plato_id: UUID
+    id_orden: UUID
+    id_plato: UUID
+    cantidad: int
+
 
 class PlatoOrdenCreate(PlatoOrdenBase):
-    pass
+    id_usuario: UUID
+
 
 class PlatoOrdenUpdate(BaseModel):
-    orden_id: Optional[UUID] = None
-    plato_id: Optional[UUID] = None
+    cantidad: Optional[int] = None
+    id_usuario_mod: Optional[UUID] = None
+
 
 class PlatoOrdenResponse(PlatoOrdenBase):
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime] = None
+    fecha_registro: date
+    fecha_actualizacion: Optional[date] = None
+    id_usuario: UUID
+    id_usuario_mod: Optional[UUID] = None
+
     class Config:
         from_attributes = True
 
+
 """Modelo base para la entidad Plato"""
+
+
 class PlatoBase(BaseModel):
     nombre: str
     precio_unidad: int
-    descripcion: str
+    descripcion: Optional[str] = None
+    id_categoria: UUID
+
 
 class PlatoCreate(PlatoBase):
-    pass
+    id_usuario: UUID
+
 
 class PlatoUpdate(BaseModel):
     nombre: Optional[str] = None
-    precio: Optional[float] = None
+    precio_unidad: Optional[int] = None
     descripcion: Optional[str] = None
+    id_categoria: Optional[UUID] = None
+    id_usuario_mod: Optional[UUID] = None
+
 
 class PlatoResponse(PlatoBase):
     id: UUID
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime] = None
+    fecha_registro: date
+    fecha_actualizacion: Optional[date] = None
+    id_usuario: UUID
+    id_usuario_mod: Optional[UUID] = None
+
     class Config:
         from_attributes = True
+
 
 """Modelo base para la entidad Reserva"""
+
+
 class ReservaBase(BaseModel):
-    cliente_id: UUID
-    mesa_id: UUID
+    id_cliente: UUID
+    id_mesa: UUID
     cantidad_personas: int
-    fecha_hora: datetime
-    estado: str
+    fecha_Hora: datetime
+    Estado: bool
+
 
 class ReservaCreate(ReservaBase):
-    pass
+    id_usuario: UUID
+
 
 class ReservaUpdate(BaseModel):
-    cliente_id: Optional[UUID] = None
-    mesa_id: Optional[UUID] = None
     cantidad_personas: Optional[int] = None
-    fecha_hora: Optional[datetime] = None
-    estado: Optional[str] = None
+    fecha_Hora: Optional[datetime] = None
+    Estado: Optional[bool] = None
+    id_usuario_mod: Optional[UUID] = None
+
 
 class ReservaResponse(ReservaBase):
-    id: UUID
-    fecha_creacion: datetime
-    fecha_actualizacion: Optional[datetime] = None
+    fecha_registro: date
+    fecha_actualizacion: Optional[date] = None
+    id_usuario: UUID
+    id_usuario_mod: Optional[UUID] = None
+
     class Config:
         from_attributes = True
 
+
 """Modelos de respuesta para la API"""
+
+
 class RespuestaAPI(BaseModel):
     mensaje: str
     exito: bool = True
     datos: Optional[dict] = None
+
 
 class RespuestaError(BaseModel):
     mensaje: str
     exito: bool = False
     error: str
     codigo: int
-    
