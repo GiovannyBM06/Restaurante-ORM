@@ -6,36 +6,26 @@ import re
 
 
 class EmpleadoCRUD:
-    """
-    Operaciones CRUD para la entidad Empleado.
-    """
-
     def __init__(self, db: Session):
-        """Inicializa con una sesión de base de datos."""
         self.db = db
 
     def _validar_nombre(self, nombre: str) -> bool:
-        """Valida el nombre del empleado (1-20 caracteres alfabéticos)."""
         pattern = r"^[a-zA-Z]{1,20}$"
         return re.match(pattern, nombre) is not None
 
     def _validar_apellido(self, apellido: str) -> bool:
-        """Valida el apellido del empleado (1-20 caracteres alfabéticos)."""
         pattern = r"^[a-zA-Z]{1,20}$"
         return re.match(pattern, apellido) is not None
 
     def _validar_rol(self, rol: str) -> bool:
-        """Valida el rol del empleado (1-20 caracteres)."""
         return 1 <= len(rol.strip()) <= 20
 
     def _validar_salario(self, salario: float) -> bool:
-        """Valida el salario del empleado (debe ser un número positivo)."""
-        return isinstance(salario, float) and salario > 0
+        return isinstance(salario, (int, float)) and salario > 0
 
     def crear_empleado(
         self, nombre: str, apellido: str, rol: str, salario: int, id_usuario: UUID
     ) -> Empleado:
-        """Crea un nuevo empleado después de validar sus campos."""
         if not self._validar_nombre(nombre):
             raise ValueError("Nombre inválido")
         if not self._validar_apellido(apellido):
@@ -57,17 +47,14 @@ class EmpleadoCRUD:
         return empleado
 
     def obtener_empleado(self, empleado_id: UUID) -> Optional[Empleado]:
-        """Obtiene un empleado por su UUID."""
         return self.db.query(Empleado).filter(Empleado.id == empleado_id).first()
 
     def obtener_empleados(self, skip: int = 0) -> List[Empleado]:
-        """Obtiene una lista de empleados, con salto opcional para paginación."""
         return self.db.query(Empleado).offset(skip).all()
 
     def actualizar_empleado(
         self, empleado_id: UUID, id_usuario_mod: UUID, **kwargs
     ) -> Optional[Empleado]:
-        """Actualiza los campos de un empleado, actualizando id_usuario_mod y fecha_actualizacion solo si hay cambios."""
         from datetime import datetime
 
         empleado = self.obtener_empleado(empleado_id)
@@ -97,7 +84,6 @@ class EmpleadoCRUD:
         return empleado
 
     def eliminar_empleado(self, empleado_id: UUID) -> bool:
-        """Elimina un empleado por su UUID."""
         empleado = self.obtener_empleado(empleado_id)
         if not empleado:
             return False
