@@ -89,7 +89,7 @@ async def crear_usuario(datos_usuario: UsuarioCreate, db: Session = Depends(get_
             nombre=datos_usuario.nombre,
             apellido=datos_usuario.apellido,
             email=datos_usuario.email,
-            contraseña=datos_usuario.contraseña,
+            contrasena=datos_usuario.contrasena,
         )
         return usuario
     except ValueError as e:
@@ -101,9 +101,9 @@ async def crear_usuario(datos_usuario: UsuarioCreate, db: Session = Depends(get_
         )
 
 
-@router.post("/{usuario_id}/cambiar-contraseña", response_model=RespuestaAPI)
-async def cambiar_contraseña(
-    usuario_id: UUID, dato_cambiar: CambioContraseña, db: Session = Depends(get_db)
+@router.post("/{usuario_id}/cambiar-contrasena", response_model=RespuestaAPI)
+async def cambiar_contrasena(
+    usuario_id: UUID, dato_cambiar: CambioContrasena, db: Session = Depends(get_db)
 ):
     try:
         usuario_crud = UsuarioCRUD(db)
@@ -113,16 +113,16 @@ async def cambiar_contraseña(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
             )
 
-        cambio_exitoso = usuario_crud.cambiar_contraseña(
-            usuario_id, dato_cambiar.contraseña_actual, dato_cambiar.nueva_contraseña
+        cambio_exitoso = usuario_crud.cambiar_contrasena(
+            usuario_id, dato_cambiar.contrasena_actual, dato_cambiar.nueva_contrasena
         )
 
         if cambio_exitoso:
-            return RespuestaAPI(mensaje="Contraseña cambiada exitosamente", exito=True)
+            return RespuestaAPI(mensaje="Contrasena cambiada exitosamente", exito=True)
         else:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Error al cambiar contraseña",
+                detail="Error al cambiar contrasena",
             )
     except HTTPException:
         raise
@@ -131,7 +131,7 @@ async def cambiar_contraseña(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al cambiar contraseña: {str(e)}",
+            detail=f"Error al cambiar contrasena: {str(e)}",
         )
 
 
@@ -194,7 +194,7 @@ async def login(login: UsuarioLogin, db: Session = Depends(get_db)):
     try:
         usuario_crud = UsuarioCRUD(db)
         usuario = usuario_crud.autenticar_usuario(
-            login.email,login.contraseña
+            login.email,login.contrasena
         )
         if not usuario:
             raise HTTPException(

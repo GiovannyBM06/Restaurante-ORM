@@ -10,7 +10,7 @@ class UsuarioBase(BaseModel):
     nombre: str
     apellido: str
     email: EmailStr
-    contraseña: str
+    contrasena: str
 
 
 class UsuarioCreate(UsuarioBase):
@@ -21,7 +21,7 @@ class UsuarioUpdate(BaseModel):
     nombre: Optional[str] = None
     apellido: Optional[str] = None
     email: Optional[EmailStr] = None
-    contraseña: Optional[str] = None
+    contrasena: Optional[str] = None
 
 
 class UsuarioResponse(UsuarioBase):
@@ -30,13 +30,13 @@ class UsuarioResponse(UsuarioBase):
     class Config:
         from_attributes = True
 
-class CambioContraseña(BaseModel):
-    contraseña_actual: str
-    nueva_contraseña: str
+class CambioContrasena(BaseModel):
+    contrasena_actual: str
+    nueva_contrasena: str
 
 class UsuarioLogin(BaseModel):
     email: str
-    contraseña: str
+    contrasena: str
     
 
 
@@ -343,7 +343,7 @@ class RespuestaError(BaseModel):
 
 class LoginRequest(BaseModel):
     email: str
-    contraseña: str
+    contrasena: str
 
 class LoginResponse(BaseModel):
     token: str

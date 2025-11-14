@@ -1,4 +1,3 @@
-from typing import List
 from uuid import UUID
 from crud.Usuario_crud import UsuarioCRUD
 from database.config import get_db
@@ -24,16 +23,12 @@ def login(login: LoginRequest, db: Session = Depends(get_db)):
         if not usuario:
             raise HTTPException(status_code=400, detail="Usuario no encontrado")
 
-        if not usuario:
+        contrasena_almacenada = getattr(usuario,'contrasena',None) 
+
+        if contrasena_almacenada != login.contrasena:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Correo o contraseña incorrectos"
-                )
-    
-        if usuario.contraseña != login.contraseña:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Correo o contraseña incorrectos"
+                detail="Correo o contrasena incorrectos"
             )
     
         token_datos = {
@@ -54,4 +49,34 @@ def login(login: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=500,
             detail=f"Error durante el login: {str(e)}"
+        )
+    
+@router.get("/verificar/{usuario_id}", response_model=RespuestaAPI)
+async def verificar_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
+    """Verificar si un usuario existe y está activo."""
+    try:
+        usuario_crud = UsuarioCRUD(db)
+        usuario = usuario_crud.obtener_usuario(usuario_id)
+
+        if not usuario:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
+            )
+
+        return RespuestaAPI(
+            mensaje="Usuario verificado exitosamente",
+            exito=True,
+            datos={
+                "usuario_id": str(usuario.id),
+                "nombre": usuario.nombre,
+                "email": usuario.email,
+                "Contrasena": usuario.contrasena
+            },
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al verificar usuario: {str(e)}",
         )
