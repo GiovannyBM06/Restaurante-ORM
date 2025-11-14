@@ -10,6 +10,7 @@ from apis import (
     Plato,
     Reserva,
     Usuario,
+    auth
 )
 from database.config import create_tables
 from fastapi import FastAPI
@@ -41,7 +42,7 @@ app.include_router(Orden.router)
 app.include_router(Plato_Orden.router)
 app.include_router(Plato.router)
 app.include_router(Reserva.router)
-
+app.include_router(auth.router)
 
 @app.on_event("startup")
 async def startup_event():

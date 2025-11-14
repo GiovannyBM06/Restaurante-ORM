@@ -30,20 +30,14 @@ class UsuarioResponse(UsuarioBase):
     class Config:
         from_attributes = True
 
-
-class UsuarioLogin(BaseModel):
-    nombre_usuario: str
-    contraseña: str
-
-
 class CambioContraseña(BaseModel):
     contraseña_actual: str
     nueva_contraseña: str
 
-
-class loginResponse(BaseModel):
-    clave: str
-    nombre_usuario: UsuarioResponse
+class UsuarioLogin(BaseModel):
+    email: str
+    contraseña: str
+    
 
 
 """Modelo base para la entidad Categoria"""
@@ -346,3 +340,11 @@ class RespuestaError(BaseModel):
     exito: bool = False
     error: str
     codigo: int
+
+class LoginRequest(BaseModel):
+    email: str
+    contraseña: str
+
+class LoginResponse(BaseModel):
+    token: str
+    usuario: UsuarioResponse

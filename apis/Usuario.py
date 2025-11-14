@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from schemas import *
 
+
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
 
@@ -187,3 +188,26 @@ async def eliminar_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al eliminar usuario: {str(e)}",
         )
+    
+'''@router.post("/login", response_model=UsuarioResponse)
+async def login(login: UsuarioLogin, db: Session = Depends(get_db)):
+    try:
+        usuario_crud = UsuarioCRUD(db)
+        usuario = usuario_crud.autenticar_usuario(
+            login.email,login.contraseña
+        )
+        if not usuario:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Credenciales incorrectas o usuario inactivo",
+            )
+
+        return usuario
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error durante el login: {str(e)}",
+        )'''
+    
