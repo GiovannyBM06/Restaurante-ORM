@@ -18,7 +18,7 @@ class Usuario(Base):
     nombre = Column(String(20), nullable=False)
     apellido = Column(String(20), nullable=False)
     email = Column(String(40), nullable=False, unique=True)
-    contraseña = Column(String(20), nullable=False)
+    contrasena = Column(String(20), nullable=False)
 
     platos = relationship(
         "Plato", back_populates="usuario", foreign_keys="Plato.id_usuario"
