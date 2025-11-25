@@ -10,7 +10,7 @@ class UsuarioBase(BaseModel):
     nombre: str
     apellido: str
     email: EmailStr
-    contraseña: str
+    contrasena: str
 
 
 class UsuarioCreate(UsuarioBase):
@@ -21,7 +21,7 @@ class UsuarioUpdate(BaseModel):
     nombre: Optional[str] = None
     apellido: Optional[str] = None
     email: Optional[EmailStr] = None
-    contraseña: Optional[str] = None
+    contrasena: Optional[str] = None
 
 
 class UsuarioResponse(UsuarioBase):
@@ -30,20 +30,14 @@ class UsuarioResponse(UsuarioBase):
     class Config:
         from_attributes = True
 
+class CambioContrasena(BaseModel):
+    contrasena_actual: str
+    nueva_contrasena: str
 
 class UsuarioLogin(BaseModel):
-    nombre_usuario: str
-    contraseña: str
-
-
-class CambioContraseña(BaseModel):
-    contraseña_actual: str
-    nueva_contraseña: str
-
-
-class loginResponse(BaseModel):
-    clave: str
-    nombre_usuario: UsuarioResponse
+    email: str
+    contrasena: str
+    
 
 
 """Modelo base para la entidad Categoria"""
@@ -346,3 +340,11 @@ class RespuestaError(BaseModel):
     exito: bool = False
     error: str
     codigo: int
+
+class LoginRequest(BaseModel):
+    email: str
+    contrasena: str
+
+class LoginResponse(BaseModel):
+    token: str
+    usuario: UsuarioResponse

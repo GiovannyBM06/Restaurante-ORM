@@ -38,17 +38,17 @@ class UsuarioCRUD:
         pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,40}$"
         return re.match(pattern, email) is not None
 
-    def _validar_contraseña(self, contraseña: str) -> bool:
-        """Valida la contraseña del usuario (6-20 caracteres, permite números)."""
+    def _validar_contrasena(self, contrasena: str) -> bool:
+        """Valida la contrasena del usuario (6-20 caracteres, permite números)."""
         pattern = r"^[a-zA-Z0-9._*-]{6,20}$"
-        return re.match(pattern, contraseña) is not None
+        return re.match(pattern, contrasena) is not None
 
     def crear_usuario(
         self,
         nombre: str,
         apellido: str,
         email: str,
-        contraseña: str,
+        contrasena: str,
     ) -> Usuario:
         """Crea un nuevo usuario después de validar sus campos."""
         if not self._validar_nombre(nombre):
@@ -57,15 +57,15 @@ class UsuarioCRUD:
             raise ValueError("Apellido inválido")
         if not self._validar_email(email):
             raise ValueError("Email inválido")
-        if not self._validar_contraseña(contraseña):
-            raise ValueError("Contraseña inválida")
+        if not self._validar_contrasena(contrasena):
+            raise ValueError("Contrasena inválida")
         if self.obtener_usuario_con_email(email):
             raise ValueError("El email ya está registrado")
         usuario = Usuario(
             nombre=nombre.strip(),
             apellido=apellido.strip(),
             email=email.lower().strip(),
-            contraseña=contraseña,
+            contrasena=contrasena,
         )
         self.db.add(usuario)
         self.db.commit()
@@ -88,35 +88,35 @@ class UsuarioCRUD:
         """Obtiene todos los usuarios con un nombre dado (no sensible a mayúsculas/minúsculas)."""
         return self.db.query(Usuario).filter(Usuario.nombre.ilike(nombre.strip())).all()
 
-    def autenticar_usuario(self, email: str, contraseña: str) -> Optional[Usuario]:
-        """Autentica un usuario por correo electrónico y contraseña."""
+    def autenticar_usuario(self, email: str, contrasena: str) -> Optional[Usuario]:
+        """Autentica un usuario por correo electrónico y contrasena."""
         usuario = self.obtener_usuario_con_email(email)
         if not usuario:
             return None
 
-        if usuario.contraseña == contraseña:
+        if usuario.contrasena == contrasena:
             return usuario
         return None
 
-    def cambiar_contraseña(
-        self, usuario_id: UUID, contraseña_actual: str, contraseña_nueva: str
+    def cambiar_contrasena(
+        self, usuario_id: UUID, contrasena_actual: str, contrasena_nueva: str
     ) -> bool:
         """
-        Cambia la contraseña de un usuario si la contraseña actual es correcta.
+        Cambia la contrasena de un usuario si la contrasena actual es correcta.
         """
         usuario = self.obtener_usuario(usuario_id)
         if not usuario:
             raise ValueError("Usuario no encontrado")
 
-        if usuario.contraseña != contraseña_actual:
-            raise ValueError("La contraseña actual es incorrecta")
+        if usuario.contrasena != contrasena_actual:
+            raise ValueError("La contrasena actual es incorrecta")
 
-        if not self._validar_contraseña(contraseña_nueva):
+        if not self._validar_contrasena(contrasena_nueva):
             raise ValueError(
-                "La nueva contraseña no cumple con los requisitos de formato"
+                "La nueva contrasena no cumple con los requisitos de formato"
             )
 
-        usuario.contraseña = contraseña_nueva
+        usuario.contrasena = contrasena_nueva
         self.db.commit()
         return True
 
@@ -151,10 +151,10 @@ class UsuarioCRUD:
             if not self._validar_apellido(apellido):
                 raise ValueError("apellido inválido")
 
-        if "contraseña" in kwargs:
-            contraseña = kwargs["contraseña"]
-            if not self._validar_contraseña(contraseña):
-                raise ValueError("Contraseña inválida")
+        if "contrasena" in kwargs:
+            contrasena = kwargs["contrasena"]
+            if not self._validar_contrasena(contrasena):
+                raise ValueError("Contrasena inválida")
 
         for key, value in kwargs.items():
             if hasattr(usuario, key):
